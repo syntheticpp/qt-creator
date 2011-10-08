@@ -341,6 +341,40 @@ static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
     return result;
 }
 
+
+// --------------------------------------------------------------------------
+// MsvcMakeCommand
+// --------------------------------------------------------------------------
+
+class MsvcMakeCommand : public MakeCommand
+{
+public:
+    MsvcMakeCommand() {}
+
+    QString concreteExecutableName() const;
+
+    MakeCommand* clone() const {  return new MsvcMakeCommand; }
+};
+
+
+QString MsvcMakeCommand::concreteExecutableName() const
+{
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
+        // We want jom! Try to find it.
+        const QString jom = QLatin1String("jom.exe");
+        const QFileInfo installedJom = QFileInfo(QCoreApplication::applicationDirPath()
+                                                 + QLatin1Char('/') + jom);
+        if (installedJom.isFile() && installedJom.isExecutable()) {
+            return installedJom.absoluteFilePath();
+        } else {
+            return jom;
+        }
+    }
+    return QLatin1String("nmake.exe");
+}
+
+
+
 // --------------------------------------------------------------------------
 // MsvcToolChain
 // --------------------------------------------------------------------------
@@ -362,12 +396,14 @@ MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
 
     updateId();
     setDisplayName(name);
+    
 }
 
 MsvcToolChain::MsvcToolChain() :
     ToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), false),
     m_lastEnvironment(Utils::Environment::systemEnvironment())
 {
+    setMakeCommand(new MsvcMakeCommand);
 }
 
 MsvcToolChain *MsvcToolChain::readFromMap(const QVariantMap &data)
@@ -451,21 +487,6 @@ QString MsvcToolChain::mkspec() const
     return QString();
 }
 
-QString MsvcToolChain::makeCommand() const
-{
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
-        // We want jom! Try to find it.
-        const QString jom = QLatin1String("jom.exe");
-        const QFileInfo installedJom = QFileInfo(QCoreApplication::applicationDirPath()
-                                                 + QLatin1Char('/') + jom);
-        if (installedJom.isFile() && installedJom.isExecutable()) {
-            return installedJom.absoluteFilePath();
-        } else {
-            return jom;
-        }
-    }
-    return QLatin1String("nmake.exe");
-}
 
 void MsvcToolChain::setDebuggerCommand(const QString &d)
 {

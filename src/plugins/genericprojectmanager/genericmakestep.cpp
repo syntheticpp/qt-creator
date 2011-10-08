@@ -154,7 +154,7 @@ QString GenericMakeStep::makeCommand() const
     if (command.isEmpty()) {
         GenericProject *pro = genericBuildConfiguration()->genericTarget()->genericProject();
         if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
-            command = toolChain->makeCommand();
+            command = toolChain->makeCommand()->executableName();
         else
             command = QLatin1String("make");
     }

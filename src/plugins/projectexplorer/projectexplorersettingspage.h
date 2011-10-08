@@ -65,6 +65,7 @@ private slots:
 
 private:
     void setJomVisible(bool);
+    void setNinjaVisible(bool);
 
     Ui::ProjectExplorerSettingsPageUi m_ui;
     mutable QString m_searchKeywords;

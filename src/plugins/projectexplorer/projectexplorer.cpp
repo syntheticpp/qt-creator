@@ -895,6 +895,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         d->m_projectExplorerSettings.mergeStdErrAndStdOut = s->value("ProjectExplorer/Settings/MergeStdErrAndStdOut", false).toBool();
         d->m_projectExplorerSettings.wrapAppOutput = s->value("ProjectExplorer/Settings/WrapAppOutput", true).toBool();
         d->m_projectExplorerSettings.useJom = s->value("ProjectExplorer/Settings/UseJom", true).toBool();
+        d->m_projectExplorerSettings.useNinja = s->value("ProjectExplorer/Settings/UseNinja", true).toBool();
         d->m_projectExplorerSettings.autorestoreLastSession = s->value("ProjectExplorer/Settings/AutoRestoreLastSession", false).toBool();
         d->m_projectExplorerSettings.prompToStopRunControl = s->value("ProjectExplorer/Settings/PromptToStopRunControl", false).toBool();
         d->m_projectExplorerSettings.maxAppOutputLines = s->value("ProjectExplorer/Settings/MaxAppOutputLines", 100000).toInt();
@@ -1188,6 +1189,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/Settings/MergeStdErrAndStdOut", d->m_projectExplorerSettings.mergeStdErrAndStdOut);
         s->setValue("ProjectExplorer/Settings/WrapAppOutput", d->m_projectExplorerSettings.wrapAppOutput);
         s->setValue("ProjectExplorer/Settings/UseJom", d->m_projectExplorerSettings.useJom);
+        s->setValue("ProjectExplorer/Settings/UseNinja", d->m_projectExplorerSettings.useNinja);
         s->setValue("ProjectExplorer/Settings/AutoRestoreLastSession", d->m_projectExplorerSettings.autorestoreLastSession);
         s->setValue("ProjectExplorer/Settings/PromptToStopRunControl", d->m_projectExplorerSettings.prompToStopRunControl);
         s->setValue("ProjectExplorer/Settings/MaxAppOutputLines", d->m_projectExplorerSettings.maxAppOutputLines);

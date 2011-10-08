@@ -44,7 +44,7 @@ struct ProjectExplorerSettings
         buildBeforeDeploy(true), deployBeforeRun(true),
         saveBeforeBuild(false), showCompilerOutput(false),
         showRunOutput(true), cleanOldAppOutput(false), mergeStdErrAndStdOut(false),
-        wrapAppOutput(true), useJom(true),
+        wrapAppOutput(true), useJom(true), useNinja(false),
         autorestoreLastSession(false), prompToStopRunControl(false),
         maxAppOutputLines(100000)
     { }
@@ -58,6 +58,7 @@ struct ProjectExplorerSettings
     bool mergeStdErrAndStdOut;
     bool wrapAppOutput;
     bool useJom;
+    bool useNinja;
     bool autorestoreLastSession; // This option is set in the Session Manager!
     bool prompToStopRunControl;
     int  maxAppOutputLines;
@@ -79,6 +80,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.mergeStdErrAndStdOut == p2.mergeStdErrAndStdOut
             && p1.wrapAppOutput == p2.wrapAppOutput
             && p1.useJom == p2.useJom
+            && p1.useNinja == p2.useNinja
             && p1.autorestoreLastSession == p2.autorestoreLastSession
             && p1.prompToStopRunControl == p2.prompToStopRunControl
             && p1.maxAppOutputLines == p2.maxAppOutputLines;

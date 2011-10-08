@@ -57,6 +57,39 @@ class ToolChainConfigWidget;
 class ToolChainFactory;
 class ToolChainManager;
 
+
+
+class PROJECTEXPLORER_EXPORT MakeCommand
+{
+public:
+    virtual ~MakeCommand();
+
+    QString executableName() const;
+    virtual MakeCommand* clone() const = 0;
+    
+protected:
+    MakeCommand();
+    virtual QString concreteExecutableName() const = 0;
+};
+
+
+class PROJECTEXPLORER_EXPORT OneMakeCommand : public MakeCommand
+{
+public:
+    OneMakeCommand(const QString& executableName);
+
+    void setExecutableName(const QString& name);
+    MakeCommand* clone() const;
+
+protected:
+    virtual QString concreteExecutableName() const;
+
+private:
+    QString m_executable_name;
+};
+
+
+
 // --------------------------------------------------------------------------
 // ToolChain (documentation inside)
 // --------------------------------------------------------------------------
@@ -82,7 +115,8 @@ public:
     virtual QByteArray predefinedMacros() const = 0;
     virtual QList<HeaderPath> systemHeaderPaths() const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
-    virtual QString makeCommand() const = 0;
+    
+    MakeCommand* makeCommand() const;
 
     virtual QString mkspec() const = 0;
 
@@ -104,6 +138,7 @@ protected:
     ToolChain(const QString &id, bool autoDetect);
     explicit ToolChain(const ToolChain &);
 
+    void setMakeCommand(MakeCommand*);
     void setId(const QString &id);
 
     void toolChainUpdated();

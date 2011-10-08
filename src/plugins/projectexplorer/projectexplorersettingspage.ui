@@ -207,6 +207,32 @@
           </property>
          </widget>
         </item>
+         <item>
+           <widget class="QCheckBox" name="ninjaCheckbox">
+             <property name="whatsThis">
+               <string/>
+             </property>
+             <property name="text">
+               <string>Use ninja instead of make</string>
+             </property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QLabel" name="ninjaLabel">
+             <property name="text">
+               <string>&lt;i&gt;ninja&lt;/i&gt; is a drop-in replacement for &lt;i&gt;make&lt;/i&gt;.</string>
+             </property>
+             <property name="wordWrap">
+               <bool>true</bool>
+             </property>
+             <property name="indent">
+               <number>20</number>
+             </property>
+             <property name="openExternalLinks">
+               <bool>true</bool>
+             </property>
+           </widget>
+         </item>
        </layout>
       </item>
      </layout>

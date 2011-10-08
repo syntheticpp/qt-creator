@@ -33,9 +33,13 @@
 #include "toolchain.h"
 
 #include "toolchainmanager.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
+
+
 
 #include <QtCore/QCoreApplication>
 
@@ -52,17 +56,80 @@ namespace Internal {
 class ToolChainPrivate
 {
 public:
-    ToolChainPrivate(const QString &id, bool autodetect) :
+    ToolChainPrivate(const QString &id, bool autodetect) : 
         m_id(id),
-        m_autodetect(autodetect)
-    { Q_ASSERT(!id.isEmpty()); }
+        m_autodetect(autodetect),
+        m_make_command(0)
+    { 
+        Q_ASSERT(!id.isEmpty());
+    }
+
+    ~ToolChainPrivate()
+    { 
+        // fits this into th QtCreator coding rules?
+        delete m_make_command;
+    }
 
     QString m_id;
     bool m_autodetect;
     mutable QString m_displayName;
+    MakeCommand* m_make_command;
 };
 
 } // namespace Internal
+
+
+// --------------------------------------------------------------------------
+// MakeCommand
+// --------------------------------------------------------------------------
+
+MakeCommand::MakeCommand()
+{
+}
+
+MakeCommand::~MakeCommand()
+{
+}
+
+QString MakeCommand::executableName() const
+{
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja) {
+#if defined(Q_OS_WIN)
+        return QLatin1String("ninja.exe");
+#else
+        return QLatin1String("ninja");
+#endif
+    }
+    return concreteExecutableName();
+}
+
+
+
+// --------------------------------------------------------------------------
+// OneMakeCommand
+// --------------------------------------------------------------------------
+
+OneMakeCommand::OneMakeCommand(const QString& executableName) : 
+    m_executable_name(executableName)
+{
+}
+
+MakeCommand* OneMakeCommand::clone() const
+{
+    return new OneMakeCommand(m_executable_name);
+}
+
+
+void OneMakeCommand::setExecutableName(const QString& name)
+{
+    m_executable_name = name;
+}
+
+QString OneMakeCommand::concreteExecutableName() const
+{
+    return m_executable_name;
+}
+
 
 /*!
     \class ProjectExplorer::ToolChain
@@ -82,11 +149,26 @@ ToolChain::ToolChain(const ToolChain &other) :
     // leave the autodetection bit at false.
     m_d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
             .arg(other.displayName());
+
+    setMakeCommand(other.makeCommand()->clone());
 }
 
 ToolChain::~ToolChain()
 {
     delete m_d;
+}
+
+
+void ToolChain::setMakeCommand(MakeCommand* mc)
+{
+    Q_ASSERT(mc);
+    m_d->m_make_command = mc;
+}
+
+MakeCommand* ToolChain::makeCommand() const
+{
+    Q_ASSERT(m_d->m_make_command);
+    return m_d->m_make_command;
 }
 
 QString ToolChain::displayName() const

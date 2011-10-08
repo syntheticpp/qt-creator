@@ -59,7 +59,7 @@ static const char *const MAEMO_QT_VERSION_KEY = "Qt4ProjectManager.Maemo.QtVersi
 // --------------------------------------------------------------------------
 
 MaemoToolChain::MaemoToolChain(bool autodetected) :
-    ProjectExplorer::GccToolChain(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID), autodetected),
+    ProjectExplorer::GccToolChain(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID), autodetected, QLatin1String("make")),
     m_qtVersionId(-1)
 {
     updateId();

@@ -65,6 +65,12 @@ void ProjectExplorerSettingsWidget::setJomVisible(bool v)
     m_ui.jomLabel->setVisible(v);
 }
 
+void ProjectExplorerSettingsWidget::setNinjaVisible(bool v)
+{
+    m_ui.ninjaCheckbox->setVisible(v);
+    m_ui.ninjaLabel->setVisible(v);
+}
+
 ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 {
     ProjectExplorerSettings pes;
@@ -77,6 +83,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     pes.mergeStdErrAndStdOut = m_ui.mergeStdErrAndStdOutCheckBox->isChecked();
     pes.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
     pes.useJom = m_ui.jomCheckbox->isChecked();
+    pes.useNinja = m_ui.ninjaCheckbox->isChecked();
     pes.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     pes.maxAppOutputLines = m_ui.maxAppOutputBox->value();
     return pes;
@@ -93,6 +100,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.mergeStdErrAndStdOutCheckBox->setChecked(pes.mergeStdErrAndStdOut);
     m_ui.wrapAppOutputCheckBox->setChecked(pes.wrapAppOutput);
     m_ui.jomCheckbox->setChecked(pes.useJom);
+    m_ui.ninjaCheckbox->setChecked(pes.useNinja);
     m_ui.promptToStopRunControlCheckBox->setChecked(pes.prompToStopRunControl);
     m_ui.maxAppOutputBox->setValue(pes.maxAppOutputLines);
 }
@@ -142,6 +150,7 @@ QString ProjectExplorerSettingsWidget::searchKeywords() const
                 + sep + m_ui.mergeStdErrAndStdOutCheckBox->toolTip()
                 + sep + m_ui.wrapAppOutputCheckBox->text()
                 + sep + m_ui.jomLabel->text()
+                + sep + m_ui.ninjaLabel->text()
                 ;
         m_searchKeywords.remove(QLatin1Char('&'));
     }

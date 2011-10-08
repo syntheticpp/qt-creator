@@ -106,7 +106,7 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
                         << QLatin1String("-k");
     }
     m_qmakeCommand = version->qmakeCommand();
-    m_makeCommand = toolChain->makeCommand();
+    m_makeCommand = toolChain->makeCommand()->executableName();
     m_mkspec = version->mkspec();
 
     // Make sure QtVersion cache is invalidated

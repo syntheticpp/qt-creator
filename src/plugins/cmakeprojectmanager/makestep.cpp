@@ -142,7 +142,7 @@ bool MakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(bc->toolChain()->makeCommand());
+    pp->setCommand(bc->toolChain()->makeCommand()->executableName());
     pp->setArguments(arguments);
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
@@ -292,7 +292,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->buildDirectory());
-        param.setCommand(tc->makeCommand());
+        param.setCommand(tc->makeCommand()->executableName());
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {

@@ -68,7 +68,6 @@ public:
     QList<HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString mkspec() const;
-    QString makeCommand() const;
     void setDebuggerCommand(const QString &d);
     virtual QString debuggerCommand() const;
     IOutputParser *outputParser() const;

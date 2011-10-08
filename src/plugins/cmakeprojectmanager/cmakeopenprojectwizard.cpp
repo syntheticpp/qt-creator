@@ -44,6 +44,8 @@
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <texteditor/fontsettings.h>
 
 #include <QtGui/QVBoxLayout>
@@ -436,14 +438,46 @@ void CMakeRunPage::initializePage()
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor) {
                 if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
                     m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(tc->displayName()), tcVariant);
-             } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
-                if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
+             } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {            
+                if (cachedGenerator.isEmpty()) {
+                    m_generatorComboBox->addItem(tr("Ninja Generator (%1)").arg(tc->displayName()), tcVariant);
                     m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(tc->displayName()), tcVariant);
+                } else {
+                    QString generator;
+                    ProjectExplorer::Internal::ProjectExplorerSettings pes = ProjectExplorer::ProjectExplorerPlugin::instance()->projectExplorerSettings();
+                    if (cachedGenerator == "Ninja") {
+                        generator = tr("Ninja Generator (%1)");                    
+                        pes.useNinja = true;
+                        ProjectExplorer::ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
+                    } else if (cachedGenerator == "MinGW Makefiles") {
+                        generator = tr("MinGW Generator (%1)");
+                        pes.useNinja = false;
+                        ProjectExplorer::ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
+                    }
+                    if (!generator.isEmpty())
+                        m_generatorComboBox->addItem(generator.arg(tc->displayName()), tcVariant);
+                }
             }
         } else {
-            // Non windows
-            if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
+            // Non windows            
+            if (cachedGenerator.isEmpty()) {
+                m_generatorComboBox->addItem(tr("Ninja Generator (%1)").arg(tc->displayName()), tcVariant);
                 m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(tc->displayName()), tcVariant);
+            } else {
+                QString generator;
+                ProjectExplorer::Internal::ProjectExplorerSettings pes = ProjectExplorer::ProjectExplorerPlugin::instance()->projectExplorerSettings();
+                if (cachedGenerator == "Ninja") {
+                    generator = tr("Ninja Generator (%1)");                    
+                    pes.useNinja = true;
+                    ProjectExplorer::ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
+                } else if (cachedGenerator == "Unix Makefiles") {
+                    generator = tr("Unix Generator (%1)");
+                    pes.useNinja = false;
+                    ProjectExplorer::ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
+                }
+                if (!generator.isEmpty())
+                    m_generatorComboBox->addItem(generator.arg(tc->displayName()), tcVariant);
+            }
         }
     }
 }
@@ -473,7 +507,9 @@ void CMakeRunPage::runCMake()
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
-    if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
+    if (ProjectExplorer::ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja) {
+        generator = "-GCodeBlocks - Ninja";
+    } else if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
         if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
             generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
         else

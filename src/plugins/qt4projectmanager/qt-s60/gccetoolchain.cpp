@@ -119,14 +119,6 @@ void GcceToolChain::addToEnvironment(Utils::Environment &env) const
     env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
 }
 
-QString GcceToolChain::makeCommand() const
-{
-#if defined(Q_OS_WIN)
-    return QLatin1String("make.exe");
-#else
-    return QLatin1String("make");
-#endif
-}
 
 QString GcceToolChain::mkspec() const
 {
@@ -150,7 +142,12 @@ ProjectExplorer::ToolChain *GcceToolChain::clone() const
 }
 
 GcceToolChain::GcceToolChain(bool autodetected) :
-    GccToolChain(QLatin1String(Constants::GCCE_TOOLCHAIN_ID), autodetected)
+    GccToolChain(QLatin1String(Constants::GCCE_TOOLCHAIN_ID), autodetected,
+#if defined(Q_OS_WIN)
+    QLatin1String("make.exe"))
+#else
+    QLatin1String("make"))
+#endif
 { }
 
 // ==========================================================================

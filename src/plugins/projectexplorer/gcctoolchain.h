@@ -65,7 +65,6 @@ public:
     QList<HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString mkspec() const;
-    QString makeCommand() const;
     void setDebuggerCommand(const QString &);
     QString debuggerCommand() const;
     IOutputParser *outputParser() const;
@@ -83,7 +82,7 @@ public:
     ToolChain *clone() const;
 
 protected:
-    GccToolChain(const QString &id, bool autodetect);
+    GccToolChain(const QString &id, bool autodetect, const QString& makeCommand);
     GccToolChain(const GccToolChain &);
 
     QString defaultDisplayName() const;
@@ -118,7 +117,6 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
 public:
     QString typeName() const;
-    QString makeCommand() const;
     QString mkspec() const;
 
     IOutputParser *outputParser() const;
@@ -141,7 +139,6 @@ class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 public:
     QString typeName() const;
     QString mkspec() const;
-    QString makeCommand() const;
 
     ToolChain *clone() const;
 

@@ -279,11 +279,16 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &path, const QStrin
 
 GccToolChain::GccToolChain(bool autodetect) :
     ToolChain(QLatin1String(Constants::GCC_TOOLCHAIN_ID), autodetect)
-{ }
+{
+    setMakeCommand(new OneMakeCommand(QLatin1String("make")));
+}
 
-GccToolChain::GccToolChain(const QString &id, bool autodetect) :
+
+GccToolChain::GccToolChain(const QString &id, bool autodetect, const QString& makeCommand) :
     ToolChain(id, autodetect)
-{ }
+{
+    setMakeCommand(new OneMakeCommand(makeCommand));
+}
 
 GccToolChain::GccToolChain(const GccToolChain &tc) :
     ToolChain(tc),
@@ -395,11 +400,6 @@ QString GccToolChain::mkspec() const
     if (abi.os() == Abi::BsdOS && abi.osFlavor() == Abi::FreeBsdFlavor)
         return QLatin1String("freebsd-g++");
     return QString();
-}
-
-QString GccToolChain::makeCommand() const
-{
-    return QLatin1String("make");
 }
 
 IOutputParser *GccToolChain::outputParser() const
@@ -714,22 +714,20 @@ void Internal::GccToolChainConfigWidget::handleAbiChange()
 // --------------------------------------------------------------------------
 
 ClangToolChain::ClangToolChain(bool autodetect) :
-    GccToolChain(QLatin1String(Constants::CLANG_TOOLCHAIN_ID), autodetect)
-{ }
+    GccToolChain(QLatin1String(Constants::CLANG_TOOLCHAIN_ID), autodetect,
+#if defined(Q_OS_WIN)
+    QLatin1String("mingw32-make.exe"))
+#else
+    QLatin1String("make"))
+#endif
+    {
+}
 
 QString ClangToolChain::typeName() const
 {
     return Internal::ClangToolChainFactory::tr("Clang");
 }
 
-QString ClangToolChain::makeCommand() const
-{
-#if defined(Q_OS_WIN)
-    return QLatin1String("mingw32-make.exe");
-#else
-    return QLatin1String("make");
-#endif
-}
 
 QString ClangToolChain::mkspec() const
 {
@@ -805,8 +803,9 @@ GccToolChain *Internal::ClangToolChainFactory::createToolChain(bool autoDetect)
 // --------------------------------------------------------------------------
 
 MingwToolChain::MingwToolChain(bool autodetect) :
-    GccToolChain(QLatin1String(Constants::MINGW_TOOLCHAIN_ID), autodetect)
-{ }
+    GccToolChain(QLatin1String(Constants::MINGW_TOOLCHAIN_ID), autodetect, QLatin1String("mingw32-make.exe"))
+{
+}
 
 QString MingwToolChain::typeName() const
 {
@@ -818,10 +817,6 @@ QString MingwToolChain::mkspec() const
     return QLatin1String("win32-g++");
 }
 
-QString MingwToolChain::makeCommand() const
-{
-    return QLatin1String("mingw32-make.exe");
-}
 
 ToolChain *MingwToolChain::clone() const
 {
@@ -894,7 +889,7 @@ GccToolChain *Internal::MingwToolChainFactory::createToolChain(bool autoDetect)
 // --------------------------------------------------------------------------
 
 LinuxIccToolChain::LinuxIccToolChain(bool autodetect) :
-    GccToolChain(QLatin1String(Constants::LINUXICC_TOOLCHAIN_ID), autodetect)
+    GccToolChain(QLatin1String(Constants::LINUXICC_TOOLCHAIN_ID), autodetect, QLatin1String("make"))
 { }
 
 QString LinuxIccToolChain::typeName() const
