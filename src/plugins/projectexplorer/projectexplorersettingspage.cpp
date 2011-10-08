@@ -53,6 +53,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 #ifndef Q_OS_WIN
     setJomVisible(false);
 #endif
+    setNinjaVisible(true);
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
     connect(m_ui.directoryButtonGroup, SIGNAL(buttonClicked(int)),
