@@ -217,8 +217,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
 
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
     cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setAdditionalArguments("clean");
-    cleanMakeStep->setClean(true);
+    cleanMakeStep->setCleanStep();
 
     CMakeOpenProjectWizard copw(cmtarget->cmakeProject()->projectManager(),
                                 cmtarget->project()->projectDirectory(),

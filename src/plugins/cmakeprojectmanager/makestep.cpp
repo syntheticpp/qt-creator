@@ -40,6 +40,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/gnumakeparser.h>
 
 #include <utils/qtcprocess.h>
@@ -104,9 +105,14 @@ CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
     return static_cast<CMakeBuildConfiguration *>(buildConfiguration());
 }
 
-void MakeStep::setClean(bool clean)
+void MakeStep::setCleanStep()
 {
-    m_clean = clean;
+    m_clean = true;
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja) {
+        setAdditionalArguments("-t clean");
+    } else {
+        setAdditionalArguments("clean");
+    }
 }
 
 QVariantMap MakeStep::toMap() const

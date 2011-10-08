@@ -71,7 +71,7 @@ public:
     QString additionalArguments() const;
     void setAdditionalArguments(const QString &list);
 
-    void setClean(bool clean);
+    void setCleanStep();
 
     QVariantMap toMap() const;
 
