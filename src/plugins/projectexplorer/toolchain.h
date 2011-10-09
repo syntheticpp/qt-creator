@@ -58,6 +58,9 @@ class ToolChainFactory;
 class ToolChainManager;
 
 
+// --------------------------------------------------------------------------
+// MakeCommand interface
+// --------------------------------------------------------------------------
 
 class PROJECTEXPLORER_EXPORT MakeCommand
 {
@@ -73,19 +76,22 @@ protected:
 };
 
 
+// --------------------------------------------------------------------------
+// OneMakeCommand for storing one executable name
+// --------------------------------------------------------------------------
+
 class PROJECTEXPLORER_EXPORT OneMakeCommand : public MakeCommand
 {
 public:
     OneMakeCommand(const QString& executableName);
 
-    void setExecutableName(const QString& name);
     MakeCommand* clone() const;
 
 protected:
     virtual QString concreteExecutableName() const;
 
 private:
-    QString m_executable_name;
+    const QString m_executable_name;
 };
 
 

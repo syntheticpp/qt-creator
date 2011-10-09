@@ -120,15 +120,17 @@ MakeCommand* OneMakeCommand::clone() const
 }
 
 
-void OneMakeCommand::setExecutableName(const QString& name)
-{
-    m_executable_name = name;
-}
-
 QString OneMakeCommand::concreteExecutableName() const
 {
     return m_executable_name;
 }
+
+
+
+
+// --------------------------------------------------------------------------
+// ToolChain
+// --------------------------------------------------------------------------
 
 
 /*!
