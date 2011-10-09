@@ -129,7 +129,9 @@ OneMakeCommand::OneMakeCommand(const QString& executableName) :
 
 MakeCommand* OneMakeCommand::clone() const
 {
-    return new OneMakeCommand(m_executableName);
+    MakeCommand* mc = new OneMakeCommand(m_executableName);
+    mc->setUseNinja(useNinja());
+    return mc;
 }
 
 
