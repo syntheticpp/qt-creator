@@ -91,7 +91,8 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
 
 void MakeStep::ctor()
 {
-    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
+    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");             // make:  [33%]
+    m_filesDoneProgess = QRegExp ("^\\[\\s*(\\d*)/\\s*(\\d*)\\]"); // ninja: [33/100]
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("Make"));
 }
@@ -186,6 +187,18 @@ void MakeStep::stdOutput(const QString &line)
         int percent = m_percentProgress.cap(1).toInt(&ok);;
         if (ok)
             m_futureInterface->setProgressValue(percent);
+    } else {
+        if (m_filesDoneProgess.indexIn(line) != -1) {
+            bool ok = false;
+            double done = m_filesDoneProgess.cap(1).toInt(&ok);
+            if (ok) {
+                double all = m_filesDoneProgess.cap(2).toInt(&ok);
+                if (ok && all != 0) {
+                    int percent = done/all * 100;
+                    m_futureInterface->setProgressValue(percent);
+                }
+            }
+        }
     }
     AbstractProcessStep::stdOutput(line);
 }

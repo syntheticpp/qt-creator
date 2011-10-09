@@ -89,6 +89,7 @@ private:
 
     bool m_clean;
     QRegExp m_percentProgress;
+    QRegExp m_filesDoneProgess;
     QFutureInterface<bool> *m_futureInterface;
     QStringList m_buildTargets;
     QString m_additionalArguments;
