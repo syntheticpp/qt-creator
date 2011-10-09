@@ -40,7 +40,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/gnumakeparser.h>
 
 #include <utils/qtcprocess.h>
@@ -109,7 +108,7 @@ CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
 void MakeStep::setCleanStep()
 {
     m_clean = true;
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja) {
+    if (cmakeBuildConfiguration()->makeCommand()->useNinja()) {
         setAdditionalArguments("-t clean");
     } else {
         setAdditionalArguments("clean");
@@ -149,7 +148,7 @@ bool MakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(bc->toolChain()->makeCommand()->executableName());
+    pp->setCommand(bc->makeCommand()->executableName());
     pp->setArguments(arguments);
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
@@ -311,7 +310,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->buildDirectory());
-        param.setCommand(tc->makeCommand()->executableName());
+        param.setCommand(bc->makeCommand()->executableName());
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {

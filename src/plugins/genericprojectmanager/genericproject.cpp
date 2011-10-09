@@ -62,6 +62,7 @@ using namespace ProjectExplorer;
 
 namespace {
 const char * const TOOLCHAIN_KEY("GenericProjectManager.GenericProject.Toolchain");
+const char * const USE_NINJA_KEY("GenericProjectManager.GenericProject.UseNinja");
 } // end of anonymous namespace
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +72,8 @@ const char * const TOOLCHAIN_KEY("GenericProjectManager.GenericProject.Toolchain
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_toolChain(0)
+      m_toolChain(0),
+      m_makeCommand(0)
 {
     setProjectContext(Core::Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -378,6 +380,30 @@ ToolChain *GenericProject::toolChain() const
     return m_toolChain;
 }
 
+
+
+void GenericProject::setMakeCommand(MakeCommand *mc)
+{
+    if (m_makeCommand == mc)
+        return;
+
+    m_makeCommand = mc;
+    //refresh(Configuration);
+
+    foreach (Target *t, targets()) {
+        foreach (BuildConfiguration *bc, t->buildConfigurations())
+            bc->setMakeCommand(mc);
+    }
+
+    emit toolChainChanged(m_makeCommand);
+}
+
+MakeCommand *GenericProject::makeCommand() const
+{
+    return m_makeCommand;
+}
+
+
 QString GenericProject::displayName() const
 {
     return m_projectName;
@@ -433,6 +459,7 @@ QVariantMap GenericProject::toMap() const
 {
     QVariantMap map(Project::toMap());
     map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QString());
+    map.insert(QLatin1String(USE_NINJA_KEY), m_makeCommand->useNinja());
     return map;
 }
 

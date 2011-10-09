@@ -215,12 +215,10 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     MakeStep *makeStep = new MakeStep(buildSteps);
     buildSteps->insertStep(0, makeStep);
 
-    MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
-    cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setCleanStep();
 
     CMakeOpenProjectWizard copw(cmtarget->cmakeProject()->projectManager(),
                                 cmtarget->project()->projectDirectory(),
+                                bc->makeCommand(),
                                 bc->buildDirectory(),
                                 bc->environment());
     if (copw.exec() != QDialog::Accepted) {
@@ -233,6 +231,10 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     bc->setBuildDirectory(copw.buildDirectory());
     cmtarget->cmakeProject()->parseCMakeLists();
 
+    MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
+    cleanSteps->insertStep(0, cleanMakeStep);
+    cleanMakeStep->setCleanStep();
+    
     // Default to all
     if (cmtarget->cmakeProject()->hasBuildTarget("all"))
         makeStep->setBuildTarget("all", true);

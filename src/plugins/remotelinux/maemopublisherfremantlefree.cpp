@@ -42,6 +42,7 @@
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
@@ -301,7 +302,7 @@ void MaemoPublisherFremantleFree::handleProcessFinished(bool failedToStart)
             runDpkgBuildPackage();
         } else {
             setState(RunningMakeDistclean);
-            m_process->start(m_buildConfig->makeCommand(),
+            m_process->start(m_buildConfig->makeCommand()->executableName(),
                 QStringList() << QLatin1String("distclean"));
         }
         break;

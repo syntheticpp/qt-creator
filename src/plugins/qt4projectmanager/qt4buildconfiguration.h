@@ -102,7 +102,6 @@ public:
     QMakeStep *qmakeStep() const;
     MakeStep *makeStep() const;
 
-    QString makeCommand() const;
     QString defaultMakeTarget() const;
     QString makefile() const;
 

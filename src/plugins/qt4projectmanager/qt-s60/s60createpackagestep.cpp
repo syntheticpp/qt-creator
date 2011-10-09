@@ -56,6 +56,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/task.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
@@ -197,7 +198,7 @@ bool S60CreatePackageStep::init()
     }
     projectCapabilities.removeDuplicates();
 
-    m_makeCmd = qt4BuildConfiguration()->makeCommand();
+    m_makeCmd = qt4BuildConfiguration()->makeCommand()->executableName();
     if (!QFileInfo(m_makeCmd).isAbsolute()) {
         // Try to detect command in environment
         const QString tmp = buildConfiguration()->environment().searchInPath(m_makeCmd);

@@ -48,6 +48,7 @@ class BuildConfiguration;
 class BuildStepList;
 class Target;
 class ToolChain;
+class MakeCommand;
 class IOutputParser;
 
 class BuildConfigMacroExpander : public Utils::AbstractQtcMacroExpander {
@@ -99,6 +100,9 @@ public:
     virtual ProjectExplorer::ToolChain *toolChain() const;
     virtual void setToolChain(ProjectExplorer::ToolChain *tc);
 
+    virtual ProjectExplorer::MakeCommand *makeCommand() const;
+    virtual void setMakeCommand(ProjectExplorer::MakeCommand *mc);
+    
     enum BuildType {
         Unknown,
         Debug,
@@ -111,6 +115,7 @@ signals:
     void buildDirectoryChanged();
     void enabledChanged();
     void toolChainChanged();
+    void makeCommandChanged();
 
 protected:
     BuildConfiguration(Target *target, const QString &id);
@@ -131,6 +136,7 @@ private:
     QList<BuildStepList *> m_stepLists;
     BuildConfigMacroExpander m_macroExpander;
     ToolChain *m_toolChain;
+    MakeCommand *m_makeCommand;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :

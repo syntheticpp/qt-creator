@@ -53,6 +53,7 @@ const char * const BUILD_STEP_LIST_PREFIX("ProjectExplorer.BuildConfiguration.Bu
 const char * const CLEAR_SYSTEM_ENVIRONMENT_KEY("ProjectExplorer.BuildConfiguration.ClearSystemEnvironment");
 const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.BuildConfiguration.UserEnvironmentChanges");
 const char * const TOOLCHAIN_KEY("ProjectExplorer.BuildCOnfiguration.ToolChain");
+const char * const USE_NINJA_KEY("ProjectExplorer.BuildCOnfiguration.UseNinja");
 
 } // namespace
 
@@ -60,7 +61,8 @@ BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(target, id),
     m_clearSystemEnvironment(false),
     m_macroExpander(this),
-    m_toolChain(0)
+    m_toolChain(0),
+    m_makeCommand(new OneMakeCommand("make"))
 {
     Q_ASSERT(target);
     BuildStepList *bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_BUILD));
@@ -85,7 +87,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_macroExpander(this),
-    m_toolChain(source->m_toolChain)
+    m_toolChain(source->m_toolChain),
+    m_makeCommand(source->m_makeCommand->clone())
 {
     Q_ASSERT(target);
     // Do not clone stepLists here, do that in the derived constructor instead
@@ -101,7 +104,9 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
 }
 
 BuildConfiguration::~BuildConfiguration()
-{ }
+{ 
+    delete m_makeCommand;
+}
 
 QStringList BuildConfiguration::knownStepLists() const
 {
@@ -130,6 +135,7 @@ QVariantMap BuildConfiguration::toMap() const
         map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), m_stepLists.at(i)->toMap());
 
     map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QLatin1String("INVALID"));
+    map.insert(QLatin1String(USE_NINJA_KEY), m_makeCommand->useNinja());
 
     return map;
 }
@@ -161,6 +167,10 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();
     m_toolChain = ToolChainManager::instance()->findToolChain(id);
 
+    // TODO decouple ToolChain and MakeCommand
+    setMakeCommand(m_toolChain->cloneMakeCommand()),
+    m_makeCommand->setUseNinja(map.value(QLatin1String(USE_NINJA_KEY)).toBool());
+    
     // TODO: We currently assume there to be at least a clean and build list!
     Q_ASSERT(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
     Q_ASSERT(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
@@ -211,6 +221,24 @@ void BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
         return;
     m_toolChain = tc;
     emit toolChainChanged();
+    emit environmentChanged();
+}
+
+
+ProjectExplorer::MakeCommand *BuildConfiguration::makeCommand() const
+{
+    Q_ASSERT(m_makeCommand);
+    return m_makeCommand;
+}
+
+void BuildConfiguration::setMakeCommand(ProjectExplorer::MakeCommand *mc)
+{
+    if (m_makeCommand == mc)
+        return;
+    
+    delete m_makeCommand;
+    m_makeCommand = mc;
+    emit makeCommandChanged();
     emit environmentChanged();
 }
 

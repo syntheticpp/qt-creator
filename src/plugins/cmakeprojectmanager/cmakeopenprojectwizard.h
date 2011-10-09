@@ -49,12 +49,14 @@ namespace Utils {
 
 namespace ProjectExplorer {
 class ToolChain;
+class MakeCommand;
 }
 
 namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeManager;
+class CMakeBuildConfiguration;
 
 class CMakeOpenProjectWizard : public Utils::Wizard
 {
@@ -74,24 +76,33 @@ public:
     };
 
     // used at importing a project without a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const Utils::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+                           const Utils::Environment &env);
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, const Utils::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+                           const QString &buildDirectory, Mode mode, const Utils::Environment &env);
     /// used to change the build directory of one buildconfiguration
     /// shows a page for selecting a directory
     /// then the run cmake page
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, const Utils::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+                           const QString &oldBuildDirectory, const Utils::Environment &env);
 
     virtual int nextId() const;
     QString buildDirectory() const;
     QString sourceDirectory() const;
     void setBuildDirectory(const QString &directory);
     CMakeManager *cmakeManager() const;
+    
     QString arguments() const;
     void setArguments(const QString &args);
+    
     ProjectExplorer::ToolChain *toolChain() const;
     void setToolChain(ProjectExplorer::ToolChain *);
+    
+    ProjectExplorer::MakeCommand *makeCommand() const;
+    void setMakeCommand(ProjectExplorer::MakeCommand *mc);
+    
     Utils::Environment environment() const;
     bool existsUpToDateXmlFile() const;
 
@@ -105,6 +116,7 @@ private:
     bool m_creatingCbpFiles;
     Utils::Environment m_environment;
     ProjectExplorer::ToolChain *m_toolChain;
+    ProjectExplorer::MakeCommand *m_makeCommand;
 };
 
 class InSourceBuildPage : public QWizardPage

@@ -114,13 +114,18 @@ public:
     QStringList projectIncludePaths() const;
     QStringList files() const;
     QStringList generated() const;
+    
     ProjectExplorer::ToolChain *toolChain() const;
     void setToolChain(ProjectExplorer::ToolChain *tc);
 
+    ProjectExplorer::MakeCommand *makeCommand() const;
+    void setMakeCommand(ProjectExplorer::MakeCommand *mc);
+    
     QVariantMap toMap() const;
 
 signals:
     void toolChainChanged(ProjectExplorer::ToolChain *);
+    void toolChainChanged(ProjectExplorer::MakeCommand *);
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
@@ -149,6 +154,7 @@ private:
 
     GenericProjectNode *m_rootNode;
     ProjectExplorer::ToolChain *m_toolChain;
+    ProjectExplorer::MakeCommand *m_makeCommand;
     QFuture<void> m_codeModelFuture;
 };
 

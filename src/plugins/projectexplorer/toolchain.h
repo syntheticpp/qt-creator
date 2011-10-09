@@ -70,9 +70,15 @@ public:
     QString executableName() const;
     virtual MakeCommand* clone() const = 0;
     
+    bool useNinja() const;
+    void setUseNinja(bool);
+    
 protected:
     MakeCommand();
     virtual QString concreteExecutableName() const = 0;
+    
+private:
+    bool m_useNinja;
 };
 
 
@@ -91,7 +97,7 @@ protected:
     virtual QString concreteExecutableName() const;
 
 private:
-    const QString m_executable_name;
+    const QString m_executableName;
 };
 
 
@@ -122,7 +128,7 @@ public:
     virtual QList<HeaderPath> systemHeaderPaths() const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     
-    MakeCommand* makeCommand() const;
+    MakeCommand* cloneMakeCommand() const;
 
     virtual QString mkspec() const = 0;
 

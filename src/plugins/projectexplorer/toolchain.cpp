@@ -83,7 +83,8 @@ public:
 // MakeCommand
 // --------------------------------------------------------------------------
 
-MakeCommand::MakeCommand()
+MakeCommand::MakeCommand() :
+    m_useNinja(ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja)
 {
 }
 
@@ -91,9 +92,21 @@ MakeCommand::~MakeCommand()
 {
 }
 
+
+bool MakeCommand::useNinja() const
+{
+    return m_useNinja;
+}
+
+
+void MakeCommand::setUseNinja(bool val)
+{
+    m_useNinja = val;
+}
+
 QString MakeCommand::executableName() const
 {
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja) {
+    if (useNinja()) {
 #if defined(Q_OS_WIN)
         return QLatin1String("ninja.exe");
 #else
@@ -110,19 +123,19 @@ QString MakeCommand::executableName() const
 // --------------------------------------------------------------------------
 
 OneMakeCommand::OneMakeCommand(const QString& executableName) : 
-    m_executable_name(executableName)
+    m_executableName(executableName)
 {
 }
 
 MakeCommand* OneMakeCommand::clone() const
 {
-    return new OneMakeCommand(m_executable_name);
+    return new OneMakeCommand(m_executableName);
 }
 
 
 QString OneMakeCommand::concreteExecutableName() const
 {
-    return m_executable_name;
+    return m_executableName;
 }
 
 
@@ -152,7 +165,7 @@ ToolChain::ToolChain(const ToolChain &other) :
     m_d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
             .arg(other.displayName());
 
-    setMakeCommand(other.makeCommand()->clone());
+    setMakeCommand(other.cloneMakeCommand());
 }
 
 ToolChain::~ToolChain()
@@ -167,10 +180,10 @@ void ToolChain::setMakeCommand(MakeCommand* mc)
     m_d->m_make_command = mc;
 }
 
-MakeCommand* ToolChain::makeCommand() const
+MakeCommand* ToolChain::cloneMakeCommand() const
 {
     Q_ASSERT(m_d->m_make_command);
-    return m_d->m_make_command;
+    return m_d->m_make_command->clone();
 }
 
 QString ToolChain::displayName() const

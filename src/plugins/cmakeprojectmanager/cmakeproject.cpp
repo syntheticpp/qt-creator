@@ -161,6 +161,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     if (mode != CMakeOpenProjectWizard::Nothing) {
         CMakeOpenProjectWizard copw(m_manager,
                                     sourceFileInfo.absolutePath(),
+                                    cmakebc->makeCommand(),
                                     cmakebc->buildDirectory(),
                                     mode,
                                     cmakebc->environment());
@@ -526,12 +527,13 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         // Ask the user for where he wants to build it
         // and the cmake command line
 
-        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), Utils::Environment::systemEnvironment());
+        CMakeBuildConfiguration *bc =
+                static_cast<CMakeBuildConfiguration *>(t->buildConfigurations().at(0));
+        
+        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), bc->makeCommand(), Utils::Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
             return false;
 
-        CMakeBuildConfiguration *bc =
-                static_cast<CMakeBuildConfiguration *>(t->buildConfigurations().at(0));
         if (!copw.buildDirectory().isEmpty())
             bc->setBuildDirectory(copw.buildDirectory());
         bc->setToolChain(copw.toolChain());
@@ -553,7 +555,8 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
         if (mode != CMakeOpenProjectWizard::Nothing) {
             CMakeOpenProjectWizard copw(m_manager,
-                                        sourceFileInfo.absolutePath(),
+                                        sourceFileInfo.absolutePath(), 
+                                        activeBC->makeCommand(),
                                         activeBC->buildDirectory(),
                                         mode,
                                         activeBC->environment());
@@ -854,6 +857,7 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
     CMakeProject *project = m_target->cmakeProject();
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
+                                m_buildConfiguration->makeCommand(),
                                 m_buildConfiguration->buildDirectory(),
                                 m_buildConfiguration->environment());
     if (copw.exec() == QDialog::Accepted) {
@@ -868,6 +872,7 @@ void CMakeBuildSettingsWidget::runCMake()
     CMakeProject *project = m_target->cmakeProject();
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
+                                m_buildConfiguration->makeCommand(),
                                 m_buildConfiguration->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 m_buildConfiguration->environment());
