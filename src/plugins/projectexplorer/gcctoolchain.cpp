@@ -280,14 +280,14 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &path, const QStrin
 GccToolChain::GccToolChain(bool autodetect) :
     ToolChain(QLatin1String(Constants::GCC_TOOLCHAIN_ID), autodetect)
 {
-    setMakeCommand(new OneMakeCommand(QLatin1String("make")));
+    setBuildCommand(new OneBuildCommand(QLatin1String("make")));
 }
 
 
-GccToolChain::GccToolChain(const QString &id, bool autodetect, const QString& makeCommand) :
+GccToolChain::GccToolChain(const QString &id, bool autodetect, const QString& buildCommand) :
     ToolChain(id, autodetect)
 {
-    setMakeCommand(new OneMakeCommand(makeCommand));
+    setBuildCommand(new OneBuildCommand(buildCommand));
 }
 
 GccToolChain::GccToolChain(const GccToolChain &tc) :

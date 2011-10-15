@@ -62,7 +62,7 @@ BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     m_clearSystemEnvironment(false),
     m_macroExpander(this),
     m_toolChain(0),
-    m_makeCommand(new OneMakeCommand("make"))
+    m_buildCommand(new OneBuildCommand("make"))
 {
     Q_ASSERT(target);
     BuildStepList *bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_BUILD));
@@ -88,7 +88,7 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_macroExpander(this),
     m_toolChain(source->m_toolChain),
-    m_makeCommand(source->m_makeCommand->clone())
+    m_buildCommand(source->m_buildCommand->clone())
 {
     Q_ASSERT(target);
     // Do not clone stepLists here, do that in the derived constructor instead
@@ -105,7 +105,7 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
 
 BuildConfiguration::~BuildConfiguration()
 { 
-    delete m_makeCommand;
+    delete m_buildCommand;
 }
 
 QStringList BuildConfiguration::knownStepLists() const
@@ -135,7 +135,7 @@ QVariantMap BuildConfiguration::toMap() const
         map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), m_stepLists.at(i)->toMap());
 
     map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QLatin1String("INVALID"));
-    map.insert(QLatin1String(USE_NINJA_KEY), m_makeCommand->useNinja());
+    map.insert(QLatin1String(USE_NINJA_KEY), m_buildCommand->useNinja());
 
     return map;
 }
@@ -168,8 +168,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     m_toolChain = ToolChainManager::instance()->findToolChain(id);
 
     // TODO decouple ToolChain and MakeCommand
-    setMakeCommand(m_toolChain->cloneMakeCommand()),
-    m_makeCommand->setUseNinja(map.value(QLatin1String(USE_NINJA_KEY)).toBool());
+    setBuildCommand(m_toolChain->cloneBuildCommand()),
+    m_buildCommand->setUseNinja(map.value(QLatin1String(USE_NINJA_KEY)).toBool());
     
     // TODO: We currently assume there to be at least a clean and build list!
     Q_ASSERT(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
@@ -225,20 +225,20 @@ void BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
 }
 
 
-ProjectExplorer::MakeCommand *BuildConfiguration::makeCommand() const
+ProjectExplorer::BuildCommand *BuildConfiguration::buildCommand() const
 {
-    Q_ASSERT(m_makeCommand);
-    return m_makeCommand;
+    Q_ASSERT(m_buildCommand);
+    return m_buildCommand;
 }
 
-void BuildConfiguration::setMakeCommand(ProjectExplorer::MakeCommand *mc)
+void BuildConfiguration::setBuildCommand(ProjectExplorer::BuildCommand *bc)
 {
-    if (m_makeCommand == mc)
+    if (m_buildCommand == bc)
         return;
     
-    delete m_makeCommand;
-    m_makeCommand = mc;
-    emit makeCommandChanged();
+    delete m_buildCommand;
+    m_buildCommand = bc;
+    emit buildCommandChanged();
     emit environmentChanged();
 }
 

@@ -59,22 +59,22 @@ class ToolChainManager;
 
 
 // --------------------------------------------------------------------------
-// MakeCommand interface
+// BuildCommand interface
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT MakeCommand
+class PROJECTEXPLORER_EXPORT BuildCommand
 {
 public:
-    virtual ~MakeCommand();
+    virtual ~BuildCommand();
 
     QString executableName() const;
-    virtual MakeCommand* clone() const = 0;
+    virtual BuildCommand* clone() const = 0;
     
     bool useNinja() const;
     void setUseNinja(bool);
     
 protected:
-    MakeCommand();
+    BuildCommand();
     virtual QString concreteExecutableName() const = 0;
     
 private:
@@ -83,15 +83,15 @@ private:
 
 
 // --------------------------------------------------------------------------
-// OneMakeCommand for storing one executable name
+// OneBuildCommand for storing one executable name
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT OneMakeCommand : public MakeCommand
+class PROJECTEXPLORER_EXPORT OneBuildCommand : public BuildCommand
 {
 public:
-    OneMakeCommand(const QString& executableName);
+    OneBuildCommand(const QString& executableName);
 
-    MakeCommand* clone() const;
+    BuildCommand* clone() const;
 
 protected:
     virtual QString concreteExecutableName() const;
@@ -128,7 +128,7 @@ public:
     virtual QList<HeaderPath> systemHeaderPaths() const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     
-    MakeCommand* cloneMakeCommand() const;
+    BuildCommand* cloneBuildCommand() const;
 
     virtual QString mkspec() const = 0;
 
@@ -150,7 +150,7 @@ protected:
     ToolChain(const QString &id, bool autoDetect);
     explicit ToolChain(const ToolChain &);
 
-    void setMakeCommand(MakeCommand*);
+    void setBuildCommand(BuildCommand*);
     void setId(const QString &id);
 
     void toolChainUpdated();

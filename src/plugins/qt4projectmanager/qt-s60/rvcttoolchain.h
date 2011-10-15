@@ -90,7 +90,7 @@ public:
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString mkspec() const;
-    QString makeCommand() const;
+    QString buildCommand() const;
     QString defaultMakeTarget() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 

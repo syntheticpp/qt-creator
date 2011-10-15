@@ -188,7 +188,7 @@ QString WinscwToolChain::mkspec() const
     return QString(); // Always use default from Qt version
 }
 
-QString WinscwToolChain::makeCommand() const
+QString WinscwToolChain::buildCommand() const
 {
 #if defined Q_OS_WIN
     return QLatin1String("make.exe");

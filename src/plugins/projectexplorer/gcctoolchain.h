@@ -82,7 +82,7 @@ public:
     ToolChain *clone() const;
 
 protected:
-    GccToolChain(const QString &id, bool autodetect, const QString& makeCommand);
+    GccToolChain(const QString &id, bool autodetect, const QString& buildCommand);
     GccToolChain(const GccToolChain &);
 
     QString defaultDisplayName() const;

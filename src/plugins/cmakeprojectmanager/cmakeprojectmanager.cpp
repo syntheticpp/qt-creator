@@ -123,7 +123,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     CMakeBuildConfiguration *bc = cmakeProject->activeTarget()->activeBuildConfiguration();
     CMakeOpenProjectWizard copw(this,
                                 cmakeProject->projectDirectory(),
-                                bc->makeCommand(),
+                                bc->buildCommand(),
                                 bc->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 bc->environment());

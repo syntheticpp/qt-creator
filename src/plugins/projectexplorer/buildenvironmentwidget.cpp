@@ -73,7 +73,7 @@ void BuildEnvironmentWidget::init(BuildConfiguration *bc)
                    this, SLOT(environmentChanged()));
         disconnect(m_buildConfiguration, SIGNAL(toolChainChanged()),
                    this, SLOT(environmentChanged()));
-        disconnect(m_buildConfiguration, SIGNAL(makeCommandChanged()),
+        disconnect(m_buildConfiguration, SIGNAL(buildCommandChanged()),
                    this, SLOT(environmentChanged()));
     }
 
@@ -83,7 +83,7 @@ void BuildEnvironmentWidget::init(BuildConfiguration *bc)
             this, SLOT(environmentChanged()));
     connect(m_buildConfiguration, SIGNAL(toolChainChanged()),
             this, SLOT(environmentChanged()));
-    connect(m_buildConfiguration, SIGNAL(makeCommandChanged()),
+    connect(m_buildConfiguration, SIGNAL(buildCommandChanged()),
             this, SLOT(environmentChanged()));
 
     m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());

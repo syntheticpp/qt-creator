@@ -82,7 +82,7 @@ GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent, Generic
     AbstractProcessStep(parent, bs),
     m_buildTargets(bs->m_buildTargets),
     m_makeArguments(bs->m_makeArguments),
-    m_makeCommand(bs->m_makeCommand)
+    m_buildCommand(bs->m_buildCommand)
 {
     ctor();
 }
@@ -111,7 +111,7 @@ bool GenericMakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setEnvironment(bc->environment());
-    pp->setCommand(makeCommand());
+    pp->setCommand(buildCommand());
     pp->setArguments(allArguments());
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
@@ -128,7 +128,7 @@ QVariantMap GenericMakeStep::toMap() const
 
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(MAKE_ARGUMENTS_KEY), m_makeArguments);
-    map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCommand);
+    map.insert(QLatin1String(MAKE_COMMAND_KEY), m_buildCommand);
     return map;
 }
 
@@ -136,7 +136,7 @@ bool GenericMakeStep::fromMap(const QVariantMap &map)
 {
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
     m_makeArguments = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toString();
-    m_makeCommand = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
+    m_buildCommand = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -148,13 +148,13 @@ QString GenericMakeStep::allArguments() const
     return args;
 }
 
-QString GenericMakeStep::makeCommand() const
+QString GenericMakeStep::buildCommand() const
 {
-    QString command = m_makeCommand;
+    QString command = m_buildCommand;
     if (command.isEmpty()) {
         GenericProject *pro = genericBuildConfiguration()->genericTarget()->genericProject();
         if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
-            command = pro->makeCommand()->executableName();
+            command = pro->buildCommand()->executableName();
         else
             command = QLatin1String("make");
     }
@@ -210,7 +210,7 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
         item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
 
-    m_ui->makeLineEdit->setText(m_makeStep->m_makeCommand);
+    m_ui->makeLineEdit->setText(m_makeStep->m_buildCommand);
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->m_makeArguments);
     updateMakeOverrrideLabel();
     updateDetails();
@@ -236,7 +236,7 @@ QString GenericMakeStepConfigWidget::displayName() const
 // TODO: Label should update when tool chain is changed
 void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
 {
-    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand()));
+    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->buildCommand()));
 }
 
 void GenericMakeStepConfigWidget::updateDetails()
@@ -247,7 +247,7 @@ void GenericMakeStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(m_makeStep->makeCommand());
+    param.setCommand(m_makeStep->buildCommand());
     param.setArguments(m_makeStep->allArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();
@@ -266,7 +266,7 @@ void GenericMakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 
 void GenericMakeStepConfigWidget::makeLineEditTextEdited()
 {
-    m_makeStep->m_makeCommand = m_ui->makeLineEdit->text();
+    m_makeStep->m_buildCommand = m_ui->makeLineEdit->text();
     updateDetails();
 }
 

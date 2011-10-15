@@ -343,21 +343,21 @@ static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
 
 
 // --------------------------------------------------------------------------
-// MsvcMakeCommand
+// MsvcBuildCommand
 // --------------------------------------------------------------------------
 
-class MsvcMakeCommand : public MakeCommand
+class MsvcBuildCommand : public BuildCommand
 {
 public:
-    MsvcMakeCommand() {}
+    MsvcBuildCommand() {}
 
     QString concreteExecutableName() const;
 
-    MakeCommand* clone() const {  return new MsvcMakeCommand; }
+    BuildCommand* clone() const {  return new MsvcBuildCommand; }
 };
 
 
-QString MsvcMakeCommand::concreteExecutableName() const
+QString MsvcBuildCommand::concreteExecutableName() const
 {
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
         // We want jom! Try to find it.
@@ -403,7 +403,7 @@ MsvcToolChain::MsvcToolChain() :
     ToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), false),
     m_lastEnvironment(Utils::Environment::systemEnvironment())
 {
-    setMakeCommand(new MsvcMakeCommand);
+    setBuildCommand(new MsvcBuildCommand);
 }
 
 MsvcToolChain *MsvcToolChain::readFromMap(const QVariantMap &data)

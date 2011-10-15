@@ -108,10 +108,10 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     m_qmakeCommand = version->qmakeCommand();
     m_mkspec = version->mkspec();
     
-    ProjectExplorer::MakeCommand* mc = toolChain->cloneMakeCommand();
-    mc->setUseNinja(false); // debugging tools don't build with ninja
-    m_makeCommand = mc->executableName();
-    delete mc;
+    ProjectExplorer::BuildCommand* bc = toolChain->cloneBuildCommand();
+    bc->setUseNinja(false); // debugging tools don't build with ninja
+    m_makeCommand = bc->executableName();
+    delete bc;
 
     // Make sure QtVersion cache is invalidated
     connect(this, SIGNAL(updateQtVersions(QString)),

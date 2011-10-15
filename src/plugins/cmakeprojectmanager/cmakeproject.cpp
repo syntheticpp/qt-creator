@@ -161,7 +161,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     if (mode != CMakeOpenProjectWizard::Nothing) {
         CMakeOpenProjectWizard copw(m_manager,
                                     sourceFileInfo.absolutePath(),
-                                    cmakebc->makeCommand(),
+                                    cmakebc->buildCommand(),
                                     cmakebc->buildDirectory(),
                                     mode,
                                     cmakebc->environment());
@@ -258,7 +258,7 @@ bool CMakeProject::parseCMakeLists()
 //        foreach(CMakeBuildTarget ct, m_buildTargets) {
 //            qDebug()<<ct.title<<" with executable:"<<ct.executable;
 //            qDebug()<<"WD:"<<ct.workingDirectory;
-//            qDebug()<<ct.makeCommand<<ct.makeCleanCommand;
+//            qDebug()<<ct.buildCommand<<ct.buildCleanCommand;
 //            qDebug()<<"";
 //        }
 
@@ -530,7 +530,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         CMakeBuildConfiguration *bc =
                 static_cast<CMakeBuildConfiguration *>(t->buildConfigurations().at(0));
         
-        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), bc->makeCommand(), Utils::Environment::systemEnvironment());
+        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), bc->buildCommand(), Utils::Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
             return false;
 
@@ -556,7 +556,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         if (mode != CMakeOpenProjectWizard::Nothing) {
             CMakeOpenProjectWizard copw(m_manager,
                                         sourceFileInfo.absolutePath(), 
-                                        activeBC->makeCommand(),
+                                        activeBC->buildCommand(),
                                         activeBC->buildDirectory(),
                                         mode,
                                         activeBC->environment());
@@ -857,7 +857,7 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
     CMakeProject *project = m_target->cmakeProject();
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
-                                m_buildConfiguration->makeCommand(),
+                                m_buildConfiguration->buildCommand(),
                                 m_buildConfiguration->buildDirectory(),
                                 m_buildConfiguration->environment());
     if (copw.exec() == QDialog::Accepted) {
@@ -872,7 +872,7 @@ void CMakeBuildSettingsWidget::runCMake()
     CMakeProject *project = m_target->cmakeProject();
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
-                                m_buildConfiguration->makeCommand(),
+                                m_buildConfiguration->buildCommand(),
                                 m_buildConfiguration->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 m_buildConfiguration->environment());
@@ -1043,7 +1043,7 @@ void CMakeCbpParser::parseMakeCommand()
 void CMakeCbpParser::parseBuildTargetBuild()
 {
     if (attributes().hasAttribute("command"))
-        m_buildTarget.makeCommand = attributes().value("command").toString();
+        m_buildTarget.buildCommand = attributes().value("command").toString();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -1057,7 +1057,7 @@ void CMakeCbpParser::parseBuildTargetBuild()
 void CMakeCbpParser::parseBuildTargetClean()
 {
     if (attributes().hasAttribute("command"))
-        m_buildTarget.makeCleanCommand = attributes().value("command").toString();
+        m_buildTarget.buildCleanCommand = attributes().value("command").toString();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -1195,8 +1195,8 @@ QString CMakeCbpParser::compilerName() const
 void CMakeBuildTarget::clear()
 {
     executable.clear();
-    makeCommand.clear();
-    makeCleanCommand.clear();
+    buildCommand.clear();
+    buildCleanCommand.clear();
     workingDirectory.clear();
     title.clear();
     library = false;

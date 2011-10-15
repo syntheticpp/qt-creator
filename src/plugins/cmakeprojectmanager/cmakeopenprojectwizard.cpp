@@ -70,14 +70,14 @@ using namespace CMakeProjectManager::Internal;
 //                                   |--> Already existing cbp file (and new enough) --> Page: Ready to load the project
 //                                   |--> Page: Ask for cmd options, run generator
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::BuildCommand *bc,
                                                const Utils::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(false),
       m_environment(env),
       m_toolChain(0),
-      m_makeCommand(mc)
+      m_buildCommand(bc)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -105,14 +105,14 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     init();
 }
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::BuildCommand *bc,
                                                const QString &buildDirectory, CMakeOpenProjectWizard::Mode mode, const Utils::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
       m_environment(env),
       m_toolChain(0),
-      m_makeCommand(mc)
+      m_buildCommand(bc)
 {
 
     CMakeRunPage::Mode rmode;
@@ -127,7 +127,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 }
 
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::BuildCommand *bc,
                                                const QString &oldBuildDirectory, const Utils::Environment &env)
     : m_cmakeManager(cmakeManager),
       m_buildDirectory(oldBuildDirectory),
@@ -135,7 +135,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
       m_creatingCbpFiles(true),
       m_environment(env),
       m_toolChain(0),
-      m_makeCommand(mc)
+      m_buildCommand(bc)
 {
     addPage(new ShadowBuildPage(this, true));
     addPage(new CMakeRunPage(this, CMakeRunPage::ChangeDirectory));
@@ -224,14 +224,14 @@ void CMakeOpenProjectWizard::setToolChain(ProjectExplorer::ToolChain *tc)
     m_toolChain = tc;
 }
 
-ProjectExplorer::MakeCommand *CMakeOpenProjectWizard::makeCommand() const
+ProjectExplorer::BuildCommand *CMakeOpenProjectWizard::bakeCommand() const
 {
-    return m_makeCommand;
+    return m_buildCommand;
 }
 
-void CMakeOpenProjectWizard::setMakeCommand(ProjectExplorer::MakeCommand *mc)
+void CMakeOpenProjectWizard::setBuildCommand(ProjectExplorer::BuildCommand *bc)
 {
-    m_makeCommand = mc;
+    m_buildCommand = bc;
 }
 
 
@@ -457,7 +457,7 @@ void CMakeRunPage::initializePage()
                     m_generatorComboBox->addItem(tr("Ninja Generator (%1)").arg(tc->displayName()), tcVariant);
                     m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(tc->displayName()), tcVariant);
                 } else {
-                    ProjectExplorer::MakeCommand* mc = m_cmakeWizard->makeCommand();
+                    ProjectExplorer::BuildCommand* mc = m_cmakeWizard->bakeCommand();
                     QString generator;
                     if (cachedGenerator == "Ninja") {
                         generator = tr("Ninja Generator (%1)");
@@ -477,7 +477,7 @@ void CMakeRunPage::initializePage()
                 m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(tc->displayName()), tcVariant);
             } else {
                 QString generator;
-                ProjectExplorer::MakeCommand* mc = m_cmakeWizard->makeCommand();
+                ProjectExplorer::BuildCommand* mc = m_cmakeWizard->bakeCommand();
                 if (cachedGenerator == "Ninja") {
                     generator = tr("Ninja Generator (%1)");
                     mc->setUseNinja(true);
@@ -517,7 +517,7 @@ void CMakeRunPage::runCMake()
     m_generatorComboBox->setEnabled(false);
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
-    ProjectExplorer::MakeCommand* mc = m_cmakeWizard->makeCommand();
+    ProjectExplorer::BuildCommand* mc = m_cmakeWizard->bakeCommand();
     if (m_generatorComboBox->currentText().contains("Ninja"))
         mc->setUseNinja(true);
     else

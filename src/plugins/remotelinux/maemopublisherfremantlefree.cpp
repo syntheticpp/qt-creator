@@ -302,7 +302,7 @@ void MaemoPublisherFremantleFree::handleProcessFinished(bool failedToStart)
             runDpkgBuildPackage();
         } else {
             setState(RunningMakeDistclean);
-            m_process->start(m_buildConfig->makeCommand()->executableName(),
+            m_process->start(m_buildConfig->buildCommand()->executableName(),
                 QStringList() << QLatin1String("distclean"));
         }
         break;

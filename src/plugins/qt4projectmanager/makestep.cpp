@@ -151,7 +151,7 @@ bool MakeStep::init()
         workingDirectory = bc->buildDirectory();
     pp->setWorkingDirectory(workingDirectory);
 
-    QString makeCmd = bc->makeCommand()->executableName();
+    QString makeCmd = bc->buildCommand()->executableName();
     if (!m_makeCmd.isEmpty())
         makeCmd = m_makeCmd;
     pp->setCommand(makeCmd);
@@ -307,7 +307,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             this, SLOT(updateDetails()));
     connect(makeStep->buildConfiguration(), SIGNAL(toolChainChanged()),
             this, SLOT(updateDetails()));
-    connect(makeStep->buildConfiguration(), SIGNAL(makeCommandChanged()),
+    connect(makeStep->buildConfiguration(), SIGNAL(buildCommandChanged()),
             this, SLOT(updateDetails()));
 
     connect(makeStep->qt4BuildConfiguration(), SIGNAL(qtVersionChanged()),
@@ -333,7 +333,7 @@ void MakeStepConfigWidget::qtVersionChanged()
 void MakeStepConfigWidget::updateMakeOverrideLabel()
 {
     Qt4BuildConfiguration *qt4bc = m_makeStep->qt4BuildConfiguration();
-    m_ui->makeLabel->setText(tr("Override %1:").arg(qt4bc->makeCommand()->executableName()));
+    m_ui->makeLabel->setText(tr("Override %1:").arg(qt4bc->buildCommand()->executableName()));
 }
 
 void MakeStepConfigWidget::updateDetails()
@@ -344,7 +344,7 @@ void MakeStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    QString makeCmd = bc->makeCommand()->executableName();
+    QString makeCmd = bc->buildCommand()->executableName();
     if (!m_makeStep->m_makeCmd.isEmpty())
         makeCmd = m_makeStep->m_makeCmd;
     param.setCommand(makeCmd);

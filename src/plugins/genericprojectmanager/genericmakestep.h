@@ -71,7 +71,7 @@ public:
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QString allArguments() const;
-    QString makeCommand() const;
+    QString buildCommand() const;
 
     QVariantMap toMap() const;
 
@@ -85,7 +85,7 @@ private:
 
     QStringList m_buildTargets;
     QString m_makeArguments;
-    QString m_makeCommand;
+    QString m_buildCommand;
 };
 
 class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

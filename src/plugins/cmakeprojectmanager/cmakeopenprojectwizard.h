@@ -49,7 +49,7 @@ namespace Utils {
 
 namespace ProjectExplorer {
 class ToolChain;
-class MakeCommand;
+class BuildCommand;
 }
 
 namespace CMakeProjectManager {
@@ -76,16 +76,16 @@ public:
     };
 
     // used at importing a project without a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::BuildCommand *bc,
                            const Utils::Environment &env);
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::BuildCommand *bc,
                            const QString &buildDirectory, Mode mode, const Utils::Environment &env);
     /// used to change the build directory of one buildconfiguration
     /// shows a page for selecting a directory
     /// then the run cmake page
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::MakeCommand *mc,
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, ProjectExplorer::BuildCommand *bc,
                            const QString &oldBuildDirectory, const Utils::Environment &env);
 
     virtual int nextId() const;
@@ -100,8 +100,8 @@ public:
     ProjectExplorer::ToolChain *toolChain() const;
     void setToolChain(ProjectExplorer::ToolChain *);
     
-    ProjectExplorer::MakeCommand *makeCommand() const;
-    void setMakeCommand(ProjectExplorer::MakeCommand *mc);
+    ProjectExplorer::BuildCommand *bakeCommand() const;
+    void setBuildCommand(ProjectExplorer::BuildCommand *bc);
     
     Utils::Environment environment() const;
     bool existsUpToDateXmlFile() const;
@@ -116,7 +116,7 @@ private:
     bool m_creatingCbpFiles;
     Utils::Environment m_environment;
     ProjectExplorer::ToolChain *m_toolChain;
-    ProjectExplorer::MakeCommand *m_makeCommand;
+    ProjectExplorer::BuildCommand *m_buildCommand;
 };
 
 class InSourceBuildPage : public QWizardPage

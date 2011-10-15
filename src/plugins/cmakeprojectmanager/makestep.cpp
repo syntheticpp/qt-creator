@@ -108,7 +108,7 @@ CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
 void MakeStep::setCleanStep()
 {
     m_clean = true;
-    if (cmakeBuildConfiguration()->makeCommand()->useNinja()) {
+    if (cmakeBuildConfiguration()->buildCommand()->useNinja()) {
         setAdditionalArguments("-t clean");
     } else {
         setAdditionalArguments("clean");
@@ -148,7 +148,7 @@ bool MakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(bc->makeCommand()->executableName());
+    pp->setCommand(bc->buildCommand()->executableName());
     pp->setArguments(arguments);
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
@@ -310,7 +310,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->buildDirectory());
-        param.setCommand(bc->makeCommand()->executableName());
+        param.setCommand(bc->buildCommand()->executableName());
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {

@@ -65,8 +65,8 @@ struct CMakeBuildTarget
     QString executable; // TODO: rename to output?
     bool library;
     QString workingDirectory;
-    QString makeCommand;
-    QString makeCleanCommand;
+    QString buildCommand;
+    QString buildCleanCommand;
     void clear();
 };
 

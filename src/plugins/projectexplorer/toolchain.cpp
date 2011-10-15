@@ -73,7 +73,7 @@ public:
     QString m_id;
     bool m_autodetect;
     mutable QString m_displayName;
-    MakeCommand* m_make_command;
+    BuildCommand* m_make_command;
 };
 
 } // namespace Internal
@@ -83,28 +83,28 @@ public:
 // MakeCommand
 // --------------------------------------------------------------------------
 
-MakeCommand::MakeCommand() :
+BuildCommand::BuildCommand() :
     m_useNinja(ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja)
 {
 }
 
-MakeCommand::~MakeCommand()
+BuildCommand::~BuildCommand()
 {
 }
 
 
-bool MakeCommand::useNinja() const
+bool BuildCommand::useNinja() const
 {
     return m_useNinja;
 }
 
 
-void MakeCommand::setUseNinja(bool val)
+void BuildCommand::setUseNinja(bool val)
 {
     m_useNinja = val;
 }
 
-QString MakeCommand::executableName() const
+QString BuildCommand::executableName() const
 {
     if (useNinja()) {
 #if defined(Q_OS_WIN)
@@ -122,20 +122,20 @@ QString MakeCommand::executableName() const
 // OneMakeCommand
 // --------------------------------------------------------------------------
 
-OneMakeCommand::OneMakeCommand(const QString& executableName) : 
+OneBuildCommand::OneBuildCommand(const QString& executableName) : 
     m_executableName(executableName)
 {
 }
 
-MakeCommand* OneMakeCommand::clone() const
+BuildCommand* OneBuildCommand::clone() const
 {
-    MakeCommand* mc = new OneMakeCommand(m_executableName);
+    BuildCommand* mc = new OneBuildCommand(m_executableName);
     mc->setUseNinja(useNinja());
     return mc;
 }
 
 
-QString OneMakeCommand::concreteExecutableName() const
+QString OneBuildCommand::concreteExecutableName() const
 {
     return m_executableName;
 }
@@ -167,7 +167,7 @@ ToolChain::ToolChain(const ToolChain &other) :
     m_d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
             .arg(other.displayName());
 
-    setMakeCommand(other.cloneMakeCommand());
+    setBuildCommand(other.cloneBuildCommand());
 }
 
 ToolChain::~ToolChain()
@@ -176,13 +176,13 @@ ToolChain::~ToolChain()
 }
 
 
-void ToolChain::setMakeCommand(MakeCommand* mc)
+void ToolChain::setBuildCommand(BuildCommand* mc)
 {
     Q_ASSERT(mc);
     m_d->m_make_command = mc;
 }
 
-MakeCommand* ToolChain::cloneMakeCommand() const
+BuildCommand* ToolChain::cloneBuildCommand() const
 {
     Q_ASSERT(m_d->m_make_command);
     return m_d->m_make_command->clone();

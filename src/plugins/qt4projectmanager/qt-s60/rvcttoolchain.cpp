@@ -230,7 +230,7 @@ QString RvctToolChain::mkspec() const
     return QString(); // Always use default from Qt version
 }
 
-QString RvctToolChain::makeCommand() const
+QString RvctToolChain::buildCommand() const
 {
 #if defined(Q_OS_WIN)
     return QLatin1String("make.exe");

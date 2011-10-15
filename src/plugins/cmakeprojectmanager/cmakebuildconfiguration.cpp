@@ -218,7 +218,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
 
     CMakeOpenProjectWizard copw(cmtarget->cmakeProject()->projectManager(),
                                 cmtarget->project()->projectDirectory(),
-                                bc->makeCommand(),
+                                bc->buildCommand(),
                                 bc->buildDirectory(),
                                 bc->environment());
     if (copw.exec() != QDialog::Accepted) {

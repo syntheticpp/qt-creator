@@ -118,14 +118,14 @@ public:
     ProjectExplorer::ToolChain *toolChain() const;
     void setToolChain(ProjectExplorer::ToolChain *tc);
 
-    ProjectExplorer::MakeCommand *makeCommand() const;
-    void setMakeCommand(ProjectExplorer::MakeCommand *mc);
+    ProjectExplorer::BuildCommand *buildCommand() const;
+    void setBuildCommand(ProjectExplorer::BuildCommand *bc);
     
     QVariantMap toMap() const;
 
 signals:
     void toolChainChanged(ProjectExplorer::ToolChain *);
-    void toolChainChanged(ProjectExplorer::MakeCommand *);
+    void toolChainChanged(ProjectExplorer::BuildCommand *);
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
@@ -154,7 +154,7 @@ private:
 
     GenericProjectNode *m_rootNode;
     ProjectExplorer::ToolChain *m_toolChain;
-    ProjectExplorer::MakeCommand *m_makeCommand;
+    ProjectExplorer::BuildCommand *m_buildCommand;
     QFuture<void> m_codeModelFuture;
 };
 
