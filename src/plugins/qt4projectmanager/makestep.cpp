@@ -39,6 +39,7 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>

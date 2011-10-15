@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef TOOLCHAIN_H
-#define TOOLCHAIN_H
+#ifndef BUILD_SYSTEM_H
+#define BUILD_SYSTEM_H
 
 #include "projectexplorer_export.h"
 #include "headerpath.h"
@@ -46,29 +46,70 @@ class Environment;
 
 namespace ProjectExplorer {
 
-    class BuildCommand;
-
 namespace Internal {
-class ToolChainPrivate;
+class BuildSystemPrivate;
 }
 
 class Abi;
 class HeaderPath;
 class IOutputParser;
-class ToolChainConfigWidget;
-class ToolChainFactory;
-class ToolChainManager;
-
+class BuildSystemConfigWidget;
+class BuildSystemFactory;
+class BuildSystemManager;
 
 
 // --------------------------------------------------------------------------
-// ToolChain (documentation inside)
+// BuildCommand interface
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChain
+class PROJECTEXPLORER_EXPORT BuildCommand
 {
 public:
-    virtual ~ToolChain();
+    virtual ~BuildCommand();
+
+    QString executableName() const;
+    virtual BuildCommand* clone() const = 0;
+    
+    bool useNinja() const;
+    void setUseNinja(bool);
+    
+protected:
+    BuildCommand();
+    virtual QString concreteExecutableName() const = 0;
+    
+private:
+    bool m_useNinja;
+};
+
+
+// --------------------------------------------------------------------------
+// OneBuildCommand for storing one executable name
+// --------------------------------------------------------------------------
+
+class PROJECTEXPLORER_EXPORT OneBuildCommand : public BuildCommand
+{
+public:
+    OneBuildCommand(const QString& executableName);
+
+    BuildCommand* clone() const;
+
+protected:
+    virtual QString concreteExecutableName() const;
+
+private:
+    const QString m_executableName;
+};
+
+
+
+// --------------------------------------------------------------------------
+// BuildSystem (documentation inside)
+// --------------------------------------------------------------------------
+
+class PROJECTEXPLORER_EXPORT BuildSystem
+{
+public:
+    virtual ~BuildSystem();
 
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -95,24 +136,23 @@ public:
     virtual QString defaultMakeTarget() const;
     virtual IOutputParser *outputParser() const = 0;
 
-    virtual bool operator ==(const ToolChain &) const;
+    virtual bool operator ==(const BuildSystem &) const;
 
-    virtual ToolChainConfigWidget *configurationWidget() = 0;
     virtual bool canClone() const;
-    virtual ToolChain *clone() const = 0;
+    virtual BuildSystem *clone() const = 0;
 
     // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this method when deriving!
     virtual QVariantMap toMap() const;
 
 protected:
-    ToolChain(const QString &id, bool autoDetect);
-    explicit ToolChain(const ToolChain &);
+    BuildSystem(const QString &id, bool autoDetect);
+    explicit BuildSystem(const BuildSystem &);
 
     void setBuildCommand(BuildCommand*);
     void setId(const QString &id);
 
-    void toolChainUpdated();
+    void buildSystemUpdated();
 
     // Make sure to call this method when deriving!
     virtual bool fromMap(const QVariantMap &data);
@@ -120,13 +160,13 @@ protected:
 private:
     void setAutoDetected(bool);
 
-    Internal::ToolChainPrivate *const m_d;
+    Internal::BuildSystemPrivate *const m_d;
 
-    friend class ToolChainManager;
-    friend class ToolChainFactory;
+    friend class BuildSystemManager;
+    friend class BuildSystemFactory;
 };
 
-class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
+class PROJECTEXPLORER_EXPORT BuildSystemFactory : public QObject
 {
     Q_OBJECT
 
@@ -134,17 +174,17 @@ public:
     virtual QString displayName() const = 0;
     virtual QString id() const = 0;
 
-    virtual QList<ToolChain *> autoDetect() = 0;
+    virtual QList<BuildSystem *> autoDetect() = 0;
 
     virtual bool canCreate();
-    virtual ToolChain *create();
+    virtual BuildSystem *create();
 
     virtual bool canRestore(const QVariantMap &data);
-    virtual ToolChain *restore(const QVariantMap &data);
+    virtual BuildSystem *restore(const QVariantMap &data);
 
     static QString idFromMap(const QVariantMap &data);
 };
 
 } // namespace ProjectExplorer
 
-#endif // TOOLCHAIN_H
+#endif // BUILD_SYSTEM_H

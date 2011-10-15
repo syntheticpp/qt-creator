@@ -37,6 +37,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+#include "buildsystem.h"
 #include "toolchainmanager.h"
 #include "project.h"
 

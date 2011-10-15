@@ -71,7 +71,9 @@ HEADERS += projectexplorer.h \
     nodesvisitor.h \
     projectmodels.h \
     currentprojectfind.h \
-    toolchain.h \
+    buildsystem.h \
+	buildsystemmanager.h \
+	toolchain.h \
     toolchainconfigwidget.h \
     toolchainmanager.h \
     toolchainoptionspage.h \
@@ -161,6 +163,8 @@ SOURCES += projectexplorer.cpp \
     nodesvisitor.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
+	buildsystem.cpp \
+	buildsystemmanager.cpp \
     toolchain.cpp \
     toolchainconfigwidget.cpp \
     toolchainmanager.cpp \

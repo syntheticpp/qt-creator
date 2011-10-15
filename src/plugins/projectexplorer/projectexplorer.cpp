@@ -39,6 +39,7 @@
 #include "projectexplorersettings.h"
 #include "target.h"
 #include "targetsettingspanel.h"
+#include "buildsystemmanager.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 #include "copytaskhandler.h"
@@ -237,6 +238,7 @@ struct ProjectExplorerPluginPrivate {
 
     Core::IMode *m_projectsMode;
 
+    BuildSystemManager *m_buildSystemManager;
     ToolChainManager *m_toolChainManager;
 };
 
@@ -245,6 +247,7 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentNode(0),
     m_delayedRunConfiguration(0),
     m_projectsMode(0),
+    m_buildSystemManager(0),
     m_toolChainManager(0)
 {
 }
@@ -283,6 +286,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
     removeObject(d->m_welcomePage);
     delete d->m_welcomePage;
+    delete d->m_buildSystemManager;
     delete d->m_toolChainManager;
     removeObject(this);
     delete d;
@@ -317,6 +321,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #endif
     addAutoReleasedObject(new Internal::ClangToolChainFactory);
 
+    d->m_buildSystemManager = new BuildSystemManager(this);
     d->m_toolChainManager = new ToolChainManager(this);
 
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
@@ -1035,6 +1040,7 @@ void ProjectExplorerPlugin::clearSession()
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {
+    d->m_buildSystemManager->restoreBuildSystems();
     d->m_toolChainManager->restoreToolChains();
 
     d->m_proWindow->extensionsInitialized();

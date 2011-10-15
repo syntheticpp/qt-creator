@@ -38,6 +38,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>

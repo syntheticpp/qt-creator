@@ -30,10 +30,9 @@
 **
 **************************************************************************/
 
-#include "toolchain.h"
-
-#include "toolchainmanager.h"
 #include "buildsystem.h"
+
+#include "buildsystemmanager.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 
@@ -44,20 +43,20 @@
 
 #include <QtCore/QCoreApplication>
 
-static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
-static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
+static const char ID_KEY[] = "ProjectExplorer.BuildSystem.Id";
+static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.BuildSystem.DisplayName";
 
 namespace ProjectExplorer {
 namespace Internal {
 
 // --------------------------------------------------------------------------
-// ToolChainPrivate
+// BuildSystemPrivate
 // --------------------------------------------------------------------------
 
-class ToolChainPrivate
+class BuildSystemPrivate
 {
 public:
-    ToolChainPrivate(const QString &id, bool autodetect) : 
+    BuildSystemPrivate(const QString &id, bool autodetect) : 
         m_id(id),
         m_autodetect(autodetect),
         m_make_command(0)
@@ -65,7 +64,7 @@ public:
         Q_ASSERT(!id.isEmpty());
     }
 
-    ~ToolChainPrivate()
+    ~BuildSystemPrivate()
     { 
         // fits this into th QtCreator coding rules?
         delete m_make_command;
@@ -80,74 +79,137 @@ public:
 } // namespace Internal
 
 
+// --------------------------------------------------------------------------
+// BuildCommand
+// --------------------------------------------------------------------------
+
+BuildCommand::BuildCommand() :
+    m_useNinja(ProjectExplorerPlugin::instance()->projectExplorerSettings().useNinja)
+{
+}
+
+BuildCommand::~BuildCommand()
+{
+}
+
+
+bool BuildCommand::useNinja() const
+{
+    return m_useNinja;
+}
+
+
+void BuildCommand::setUseNinja(bool val)
+{
+    m_useNinja = val;
+}
+
+QString BuildCommand::executableName() const
+{
+    if (useNinja()) {
+#if defined(Q_OS_WIN)
+        return QLatin1String("ninja.exe");
+#else
+        return QLatin1String("ninja");
+#endif
+    }
+    return concreteExecutableName();
+}
+
+
 
 // --------------------------------------------------------------------------
-// ToolChain
+// OneMakeCommand
+// --------------------------------------------------------------------------
+
+OneBuildCommand::OneBuildCommand(const QString& executableName) : 
+    m_executableName(executableName)
+{
+}
+
+BuildCommand* OneBuildCommand::clone() const
+{
+    BuildCommand* mc = new OneBuildCommand(m_executableName);
+    mc->setUseNinja(useNinja());
+    return mc;
+}
+
+
+QString OneBuildCommand::concreteExecutableName() const
+{
+    return m_executableName;
+}
+
+
+
+
+// --------------------------------------------------------------------------
+// BuildSystem
 // --------------------------------------------------------------------------
 
 
 /*!
-    \class ProjectExplorer::ToolChain
-    \brief Representation of a ToolChain.
-    \sa ProjectExplorer::ToolChainManager
+    \class ProjectExplorer::BuildSystem
+    \brief Representation of a BuildSystem.
+    \sa ProjectExplorer::BuildSystemManager
 */
 
 // --------------------------------------------------------------------------
 
-ToolChain::ToolChain(const QString &id, bool autodetect) :
-    m_d(new Internal::ToolChainPrivate(id, autodetect))
+BuildSystem::BuildSystem(const QString &id, bool autodetect) :
+    m_d(new Internal::BuildSystemPrivate(id, autodetect))
 { }
 
-ToolChain::ToolChain(const ToolChain &other) :
-    m_d(new Internal::ToolChainPrivate(other.id(), false))
+BuildSystem::BuildSystem(const BuildSystem &other) :
+    m_d(new Internal::BuildSystemPrivate(other.id(), false))
 {
     // leave the autodetection bit at false.
-    m_d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
+    m_d->m_displayName = QCoreApplication::translate("ProjectExplorer::BuildSystem", "Clone of %1")
             .arg(other.displayName());
 
     setBuildCommand(other.cloneBuildCommand());
 }
 
-ToolChain::~ToolChain()
+BuildSystem::~BuildSystem()
 {
     delete m_d;
 }
 
 
-void ToolChain::setBuildCommand(BuildCommand* mc)
+void BuildSystem::setBuildCommand(BuildCommand* mc)
 {
     Q_ASSERT(mc);
     m_d->m_make_command = mc;
 }
 
-BuildCommand* ToolChain::cloneBuildCommand() const
+BuildCommand* BuildSystem::cloneBuildCommand() const
 {
     Q_ASSERT(m_d->m_make_command);
     return m_d->m_make_command->clone();
 }
 
-QString ToolChain::displayName() const
+QString BuildSystem::displayName() const
 {
     if (m_d->m_displayName.isEmpty())
         return typeName();
     return m_d->m_displayName;
 }
 
-void ToolChain::setDisplayName(const QString &name)
+void BuildSystem::setDisplayName(const QString &name)
 {
     if (m_d->m_displayName == name)
         return;
 
     m_d->m_displayName = name;
-    toolChainUpdated();
+    buildSystemUpdated();
 }
 
-bool ToolChain::isAutoDetected() const
+bool BuildSystem::isAutoDetected() const
 {
     return m_d->m_autodetect;
 }
 
-QString ToolChain::id() const
+QString BuildSystem::id() const
 {
     return m_d->m_id;
 }
@@ -158,22 +220,22 @@ QString ToolChain::id() const
     An empty list is shows that the toolchain is compatible with all targets.
 */
 
-QStringList ToolChain::restrictedToTargets() const
+QStringList BuildSystem::restrictedToTargets() const
 {
     return QStringList();
 }
 
-bool ToolChain::canClone() const
+bool BuildSystem::canClone() const
 {
     return true;
 }
 
-QString ToolChain::defaultMakeTarget() const
+QString BuildSystem::defaultMakeTarget() const
 {
     return QString();
 }
 
-bool ToolChain::operator == (const ToolChain &tc) const
+bool BuildSystem::operator == (const BuildSystem &tc) const
 {
     if (this == &tc)
         return true;
@@ -187,7 +249,7 @@ bool ToolChain::operator == (const ToolChain &tc) const
     Make sure to call this method when deriving!
 */
 
-QVariantMap ToolChain::toMap() const
+QVariantMap BuildSystem::toMap() const
 {
     QVariantMap result;
     if (isAutoDetected())
@@ -199,27 +261,27 @@ QVariantMap ToolChain::toMap() const
     return result;
 }
 
-void ToolChain::setId(const QString &id)
+void BuildSystem::setId(const QString &id)
 {
     Q_ASSERT(!id.isEmpty());
     if (m_d->m_id == id)
         return;
 
     m_d->m_id = id;
-    toolChainUpdated();
+    buildSystemUpdated();
 }
 
-void ToolChain::toolChainUpdated()
+void BuildSystem::buildSystemUpdated()
 {
-    ToolChainManager::instance()->notifyAboutUpdate(this);
+    BuildSystemManager::instance()->notifyAboutUpdate(this);
 }
 
-void ToolChain::setAutoDetected(bool autodetect)
+void BuildSystem::setAutoDetected(bool autodetect)
 {
     if (m_d->m_autodetect == autodetect)
         return;
     m_d->m_autodetect = autodetect;
-    toolChainUpdated();
+    buildSystemUpdated();
 }
 
 /*!
@@ -228,7 +290,7 @@ void ToolChain::setAutoDetected(bool autodetect)
     Make sure to call this method when deriving!
 */
 
-bool ToolChain::fromMap(const QVariantMap &data)
+bool BuildSystem::fromMap(const QVariantMap &data)
 {
     Q_ASSERT(!isAutoDetected());
     // do not read the id: That is already set anyway.
@@ -238,46 +300,46 @@ bool ToolChain::fromMap(const QVariantMap &data)
 }
 
 /*!
-    \class ProjectExplorer::ToolChainFactory
+    \class ProjectExplorer::BuildSystemFactory
     \brief Creates toolchains from settings or autodetects them.
 */
 
 /*!
-    \fn QString ProjectExplorer::ToolChainFactory::displayName() const = 0
+    \fn QString ProjectExplorer::BuildSystemFactory::displayName() const = 0
     \brief Name used to display the name of the tool chain that will be created.
 */
 
 /*!
-    \fn bool ProjectExplorer::ToolChainFactory::canRestore(const QVariantMap &data)
-    \brief Used by the ToolChainManager to restore user-generated tool chains.
+    \fn bool ProjectExplorer::BuildSystemFactory::canRestore(const QVariantMap &data)
+    \brief Used by the BuildSystemManager to restore user-generated tool chains.
 */
 
-QList<ToolChain *> ToolChainFactory::autoDetect()
+QList<BuildSystem *> BuildSystemFactory::autoDetect()
 {
-    return QList<ToolChain *>();
+    return QList<BuildSystem *>();
 }
 
-bool ToolChainFactory::canCreate()
-{
-    return false;
-}
-
-ToolChain *ToolChainFactory::create()
-{
-    return 0;
-}
-
-bool ToolChainFactory::canRestore(const QVariantMap &)
+bool BuildSystemFactory::canCreate()
 {
     return false;
 }
 
-ToolChain *ToolChainFactory::restore(const QVariantMap &)
+BuildSystem *BuildSystemFactory::create()
 {
     return 0;
 }
 
-QString ToolChainFactory::idFromMap(const QVariantMap &data)
+bool BuildSystemFactory::canRestore(const QVariantMap &)
+{
+    return false;
+}
+
+BuildSystem *BuildSystemFactory::restore(const QVariantMap &)
+{
+    return 0;
+}
+
+QString BuildSystemFactory::idFromMap(const QVariantMap &data)
 {
     return data.value(QLatin1String(ID_KEY)).toString();
 }

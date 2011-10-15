@@ -45,6 +45,7 @@
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/buildsystemmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/fontsettings.h>
 

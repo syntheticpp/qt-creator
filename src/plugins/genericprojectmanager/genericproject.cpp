@@ -40,6 +40,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/buildsystemmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cplusplus/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>

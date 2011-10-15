@@ -39,6 +39,7 @@
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/buildsystemmanager.h>
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>

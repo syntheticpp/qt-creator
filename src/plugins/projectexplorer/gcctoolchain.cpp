@@ -37,6 +37,7 @@
 #include "linuxiccparser.h"
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
+#include "buildsystem.h"
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>

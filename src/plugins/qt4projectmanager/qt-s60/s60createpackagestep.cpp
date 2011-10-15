@@ -57,6 +57,7 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
