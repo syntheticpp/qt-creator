@@ -29,7 +29,9 @@
 **************************************************************************/
 
 #include "profilehighlighter.h"
-#include "profilekeywords.h"
+#include "profilecompletionassist.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <QRegExp>
 #include <QColor>
@@ -42,6 +44,9 @@ using namespace Qt4ProjectManager::Internal;
 ProFileHighlighter::ProFileHighlighter(QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document)
 {
+    ProFileCompletionAssistProvider *pcap
+            = ExtensionSystem::PluginManager::instance()->getObject<ProFileCompletionAssistProvider>();
+    m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 
 void ProFileHighlighter::highlightBlock(const QString &text)
@@ -62,12 +67,12 @@ void ProFileHighlighter::highlightBlock(const QString &text)
             if (c.isLetter() || c == QLatin1Char('_') || c == QLatin1Char('.') || c.isDigit()) {
                 buf += c;
                 setFormat(i - buf.length()+1, buf.length(), emptyFormat);
-                if (!buf.isEmpty() && ProFileKeywords::isFunction(buf))
+                if (!buf.isEmpty() && m_keywords.isFunction(buf))
                     setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileFunctionFormat]);
-                else if (!buf.isEmpty() && ProFileKeywords::isVariable(buf))
+                else if (!buf.isEmpty() && m_keywords.isVariable(buf))
                     setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileVariableFormat]);
             } else if (c == QLatin1Char('(')) {
-                if (!buf.isEmpty() && ProFileKeywords::isFunction(buf))
+                if (!buf.isEmpty() && m_keywords.isFunction(buf))
                     setFormat(i - buf.length(), buf.length(), m_formats[ProfileFunctionFormat]);
                 buf.clear();
             } else if (c == QLatin1Char('#')) {
@@ -75,7 +80,7 @@ void ProFileHighlighter::highlightBlock(const QString &text)
                 setFormat(i, 1, m_formats[ProfileCommentFormat]);
                 buf.clear();
             } else {
-                if (!buf.isEmpty() && ProFileKeywords::isVariable(buf))
+                if (!buf.isEmpty() && m_keywords.isVariable(buf))
                     setFormat(i - buf.length(), buf.length(), m_formats[ProfileVariableFormat]);
                 buf.clear();
             }

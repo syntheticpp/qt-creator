@@ -28,34 +28,30 @@
 **
 **************************************************************************/
 
-#ifndef PROFILECOMPLETIONASSIST_H
-#define PROFILECOMPLETIONASSIST_H
+#ifndef CMAKEFILECOMPLETIONASSIST_H
+#define CMAKEFILECOMPLETIONASSIST_H
 
 #include <texteditor/codeassist/completionassistprovider.h>
 
-#include <QStringList>
-
-namespace Qt4ProjectManager {
+namespace CMakeProjectManager {
 namespace Internal {
 
-class ProFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
-{
-    Q_OBJECT
-public:
-    ProFileCompletionAssistProvider();
-    void init();
-    virtual ~ProFileCompletionAssistProvider();
+class CMakeSettingsPage;
 
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
-    QStringList variables() const;
-    QStringList functions() const;
+class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+{
+public:
+    CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage);
+    ~CMakeFileCompletionAssistProvider();
+
+    bool supportsEditor(const Core::Id &editorId) const;
+    TextEditor::IAssistProcessor *createProcessor() const;
+
 private:
-    QStringList m_variables;
-    QStringList m_functions;
+    CMakeSettingsPage *m_settingsPage;
 };
 
 } // Internal
-} // Qt4ProjectManager
+} // CMakeProjectManager
 
-#endif // PROFILECOMPLETIONASSIST_H
+#endif // CMAKEFILECOMPLETIONASSIST_H

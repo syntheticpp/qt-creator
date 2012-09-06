@@ -32,6 +32,7 @@
 #define PROFILEHOVERHANDLER_H
 
 #include <texteditor/basehoverhandler.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <QObject>
 
@@ -77,6 +78,7 @@ private:
 
     QString m_docFragment;
     ManualKind m_manualKind;
+    TextEditor::Keywords m_keywords;
 };
 
 } // namespace Internal

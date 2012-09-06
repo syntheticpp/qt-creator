@@ -30,6 +30,8 @@ QtcPlugin {
         "cmakeeditor.h",
         "cmakeeditorfactory.cpp",
         "cmakeeditorfactory.h",
+        "cmakefilecompletionassist.cpp",
+        "cmakefilecompletionassist.h",
         "cmakehighlighter.cpp",
         "cmakehighlighter.h",
         "cmakelocatorfilter.cpp",
@@ -50,6 +52,8 @@ QtcPlugin {
         "cmakerunconfiguration.h",
         "cmakeuicodemodelsupport.cpp",
         "cmakeuicodemodelsupport.h",
+        "cmakevalidator.cpp",
+        "cmakevalidator.h",
         "makestep.cpp",
         "makestep.h"
     ]
