@@ -36,6 +36,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <coreplugin/icontext.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
@@ -43,9 +44,11 @@
 #include <QFuture>
 #include <QStringList>
 #include <QDir>
+#include <QVector>
 #include <QAction>
 
-QT_FORWARD_DECLARE_CLASS(QProcess)
+#include "cmakevalidator.h"
+
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QFormLayout)
 
@@ -104,18 +107,6 @@ private:
     ProjectExplorer::Project *m_contextProject;
 };
 
-struct CMakeValidator
-{
-    enum STATE { VALID, INVALID, RUNNING };
-    STATE state;
-    QProcess *process;
-    bool hasCodeBlocksMsvcGenerator;
-    bool hasCodeBlocksNinjaGenerator;
-    QString version;
-    QString executable;
-
-    CMakeValidator() : state(INVALID), process(0), hasCodeBlocksMsvcGenerator(false), hasCodeBlocksNinjaGenerator(false) {}
-};
 
 class CMakeSettingsPage : public Core::IOptionsPage
 {
@@ -137,30 +128,27 @@ public:
 
     QString ninjaExecutable() const;
 
+    TextEditor::Keywords keywords();
+
 signals:
     void cmakeExecutableChanged();
 
-private slots:
-    void userCmakeFinished();
-    void pathCmakeFinished();
-
 private:
     enum BuildCommand { CMake, Ninja };
-    void cmakeFinished(CMakeValidator *cmakeValidator) const;
     void saveSettings(BuildCommand cmd) const;
     QString findExecutable(BuildCommand cmd, const QStringList &dirs) const;
-    void startProcess(CMakeValidator *cmakeValidator);
-    void updateInfo(BuildCommand cmd, CMakeValidator *validator);
+
+    void updateInfo(BuildCommand cmd, CMakeValidator *validator, const QString &executable);
     void createExecutableChooser(QFormLayout *formLayout, Utils::PathChooser *&pathchooser,
                                  const QString &name, const QString &path);
 
     Utils::PathChooser *m_pathchooser;
-    mutable CMakeValidator m_userCmake;
-    mutable CMakeValidator m_pathCmake;
+    mutable CMakeValidator m_cmakeValidatorForUser;
+    mutable CMakeValidator m_cmakeValidatorForSystem;
 
     Utils::PathChooser *m_pathchooserNinja;
-    mutable CMakeValidator m_userNinja;
-    mutable CMakeValidator m_pathNinja;
+    mutable CMakeValidator m_ninjaValidatorForUser;
+    mutable CMakeValidator m_ninjaValidatorForSystem;
 
     void initValidator(BuildCommand cmd, CMakeValidator *user, CMakeValidator *path);
 };
