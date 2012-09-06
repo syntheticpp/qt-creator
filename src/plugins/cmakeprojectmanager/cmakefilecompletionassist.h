@@ -27,27 +27,30 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEKEYWORDS_H
-#define PROFILEKEYWORDS_H
+#ifndef CMAKEFILECOMPLETIONASSIST_H
+#define CMAKEFILECOMPLETIONASSIST_H
 
-#include <QStringList>
+#include <texteditor/codeassist/completionassistprovider.h>
 
-namespace Qt4ProjectManager {
-
+namespace CMakeProjectManager {
 namespace Internal {
 
-class ProFileKeywords
+class CMakeSettingsPage;
+
+class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
 public:
-    static QStringList variables();
-    static QStringList functions();
-    static bool isVariable(const QString &word);
-    static bool isFunction(const QString &word);
+    CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage);
+    ~CMakeFileCompletionAssistProvider();
+
+    bool supportsEditor(const Core::Id &editorId) const;
+    TextEditor::IAssistProcessor *createProcessor() const;
+
 private:
-    ProFileKeywords();
+    CMakeSettingsPage *m_settingsPage;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // Internal
+} // CMakeProjectManager
 
-#endif // PROFILEKEYWORDS_H
+#endif // CMAKEFILECOMPLETIONASSIST_H
