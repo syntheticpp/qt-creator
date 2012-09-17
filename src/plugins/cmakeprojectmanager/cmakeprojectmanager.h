@@ -47,6 +47,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QFormLayout)
 
 namespace Utils {
 class QtcProcess;
@@ -70,6 +71,8 @@ public:
     bool isCMakeExecutableValid() const;
 
     void setCMakeExecutable(const QString &executable);
+
+    QString ninjaExecutable() const;
 
     void createXmlFile(Utils::QtcProcess *process,
                        const QString &arguments,
@@ -105,6 +108,8 @@ struct CMakeValidator
     bool hasCodeBlocksNinjaGenerator;
     QString version;
     QString executable;
+
+    CMakeValidator() : state(INVALID), process(0), hasCodeBlocksMsvcGenerator(false), hasCodeBlocksNinjaGenerator(false) {}
 };
 
 class CMakeSettingsPage : public Core::IOptionsPage
@@ -125,20 +130,31 @@ public:
     bool hasCodeBlocksMsvcGenerator() const;
     bool hasCodeBlocksNinjaGenerator() const;
 
+    QString ninjaExecutable() const;
+
 private slots:
     void userCmakeFinished();
     void pathCmakeFinished();
 
 private:
+    enum BuildCommand { CMake, Ninja };
     void cmakeFinished(CMakeValidator *cmakeValidator) const;
-    void saveSettings() const;
-    QString findCmakeExecutable() const;
+    void saveSettings(BuildCommand cmd) const;
+    QString findExecutable(BuildCommand cmd, const QStringList &dirs) const;
     void startProcess(CMakeValidator *cmakeValidator);
-    void updateInfo(CMakeValidator *cmakeValidator);
+    void updateInfo(BuildCommand cmd, CMakeValidator *validator);
+    void createExecutableChooser(QFormLayout *formLayout, Utils::PathChooser *&pathchooser,
+                                 const QString &name, const QString &path);
 
     Utils::PathChooser *m_pathchooser;
     mutable CMakeValidator m_userCmake;
     mutable CMakeValidator m_pathCmake;
+
+    Utils::PathChooser *m_pathchooserNinja;
+    mutable CMakeValidator m_userNinja;
+    mutable CMakeValidator m_pathNinja;
+
+    void initValidator(BuildCommand cmd, CMakeValidator *user, CMakeValidator *path);
 };
 
 } // namespace Internal

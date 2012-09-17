@@ -498,11 +498,13 @@ void CMakeRunPage::runCMake()
     m_generatorComboBox->setEnabled(false);
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
+    QString arguments = m_argumentsLineEdit->text();
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
     m_cmakeWizard->buildConfiguration()->setUseNinja(false);
     if (generatorInfo.isNinja()) {
-        generator = "-GCodeBlocks - Ninja";
         m_cmakeWizard->buildConfiguration()->setUseNinja(true);
+        generator = "-GCodeBlocks - Ninja";
+        arguments += QLatin1String(" -DCMAKE_MAKE_PROGRAM=\"") + m_cmakeWizard->buildConfiguration()->ninjaExecutable() + QLatin1String("\"");
     } else if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
         if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
 #ifdef Q_OS_WIN
@@ -524,7 +526,7 @@ void CMakeRunPage::runCMake()
         connect(m_cmakeProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(cmakeReadyReadStandardOutput()));
         connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
-        cmakeManager->createXmlFile(m_cmakeProcess, m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
+        cmakeManager->createXmlFile(m_cmakeProcess, arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
