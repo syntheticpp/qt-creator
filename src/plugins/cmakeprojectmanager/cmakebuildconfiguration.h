@@ -67,6 +67,7 @@ public:
 
     bool useNinja() const;
     void setUseNinja(bool);
+    QString ninjaExecutable() const;
 
 signals:
     void useNinjaChanged(bool);
@@ -79,6 +80,7 @@ private:
     QString m_buildDirectory;
     QString m_msvcVersion;
     bool m_useNinja;
+    QString m_ninjaExecutable;
 };
 
 class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

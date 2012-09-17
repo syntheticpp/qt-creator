@@ -57,7 +57,9 @@ const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
     BuildConfiguration(parent, Core::Id(CMAKE_BC_ID)), m_useNinja(false)
 {
-    m_buildDirectory = static_cast<CMakeProject *>(parent->project())->defaultBuildDirectory();
+    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
+    m_buildDirectory = project->defaultBuildDirectory();
+    m_ninjaExecutable = project->projectManager()->ninjaExecutable();
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
@@ -69,6 +71,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
 {
     Q_ASSERT(parent);
     cloneSteps(source);
+    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
+    m_ninjaExecutable = project->projectManager()->ninjaExecutable();
 }
 
 QVariantMap CMakeBuildConfiguration::toMap() const
@@ -99,6 +103,11 @@ void CMakeBuildConfiguration::setUseNinja(bool useNninja)
         m_useNinja = useNninja;
         emit useNinjaChanged(m_useNinja);
     }
+}
+
+QString CMakeBuildConfiguration::ninjaExecutable() const
+{
+    return m_ninjaExecutable;
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()

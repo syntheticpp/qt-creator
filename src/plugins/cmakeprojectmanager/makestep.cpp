@@ -99,10 +99,11 @@ void MakeStep::ctor()
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("Make"));
 
-    BuildConfiguration *bc = cmakeBuildConfiguration();
+    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (bc) {
         m_activeConfiguration = 0;
         connect(bc, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
+        m_ninjaExecutable = bc->ninjaExecutable();
     } else {
         // That means the step is in the deploylist, so we listen to the active build config
         // changed signal and react to the activeBuildConfigurationChanged() signal of the buildconfiguration
@@ -137,6 +138,7 @@ void MakeStep::activeBuildConfigurationChanged()
     if (m_activeConfiguration) {
         connect(m_activeConfiguration, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
         setUseNinja(m_activeConfiguration->useNinja());
+        m_ninjaExecutable = m_activeConfiguration->ninjaExecutable();
     }
 }
 
@@ -310,7 +312,7 @@ void MakeStep::setAdditionalArguments(const QString &list)
 QString MakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const
 {
     if (m_useNinja)
-        return QLatin1String("ninja");
+        return m_ninjaExecutable.isEmpty() ? QLatin1String("ninja") : m_ninjaExecutable;
     if (tc)
         return tc->makeCommand(env);
 

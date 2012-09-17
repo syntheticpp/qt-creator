@@ -145,6 +145,11 @@ QString CMakeManager::cmakeExecutable() const
     return m_settingsPage->cmakeExecutable();
 }
 
+QString CMakeManager::ninjaExecutable() const
+{
+    return m_settingsPage->ninjaExecutable();
+}
+
 bool CMakeManager::isCMakeExecutableValid() const
 {
     return m_settingsPage->isCMakeExecutableValid();
@@ -245,7 +250,7 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 
 
 CMakeSettingsPage::CMakeSettingsPage()
-    :  m_pathchooser(0)
+    :  m_pathchooser(0), m_pathchooserNinja(0)
 {
     setId(QLatin1String("Z.CMake"));
     setDisplayName(tr("CMake"));
@@ -254,20 +259,20 @@ CMakeSettingsPage::CMakeSettingsPage()
        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 
-    m_userCmake.process = 0;
-    m_pathCmake.process = 0;
-    m_userCmake.hasCodeBlocksMsvcGenerator = false;
-    m_pathCmake.hasCodeBlocksMsvcGenerator = false;
-    m_userCmake.hasCodeBlocksNinjaGenerator = false;
-    m_pathCmake.hasCodeBlocksNinjaGenerator = false;
+    initValidator(CMake, &m_userCmake, &m_pathCmake);
+    initValidator(Ninja, &m_userNinja, &m_pathNinja);
+}
+
+void CMakeSettingsPage::initValidator(BuildCommand cmd, CMakeValidator *user, CMakeValidator *path)
+{
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    m_userCmake.executable = settings->value(QLatin1String("cmakeExecutable")).toString();
+    QString key = QLatin1String(cmd == CMake ? "cmakeExecutable" : "ninjaExecutable");
+    user->executable = settings->value(key).toString();
     settings->endGroup();
-
-    updateInfo(&m_userCmake);
-    m_pathCmake.executable = findCmakeExecutable();
-    updateInfo(&m_pathCmake);
+    updateInfo(cmd, user);
+    path->executable = findExecutable(cmd);
+    updateInfo(cmd, path);
 }
 
 void CMakeSettingsPage::startProcess(CMakeValidator *cmakeValidator)
@@ -352,54 +357,68 @@ CMakeSettingsPage::~CMakeSettingsPage()
     delete m_pathCmake.process;
 }
 
-QString CMakeSettingsPage::findCmakeExecutable() const
+QString CMakeSettingsPage::findExecutable(BuildCommand cmd) const
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    return env.searchInPath(QLatin1String("cmake"));
+    return env.searchInPath(QLatin1String(cmd == CMake ? "cmake" : "ninja"));
 }
 
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
     QWidget *outerWidget = new QWidget(parent);
     QFormLayout *formLayout = new QFormLayout(outerWidget);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    m_pathchooser = new Utils::PathChooser;
-    m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    formLayout->addRow(tr("Executable:"), m_pathchooser);
-    formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-    m_pathchooser->setPath(m_userCmake.executable);
+    createExecutableChooser(formLayout, m_pathchooser, QLatin1String("  cmake "), m_userCmake.executable);
+    createExecutableChooser(formLayout, m_pathchooserNinja, QLatin1String("  ninja "), m_userNinja.executable);
     return outerWidget;
 }
 
-void CMakeSettingsPage::updateInfo(CMakeValidator *cmakeValidator)
+void CMakeSettingsPage::createExecutableChooser(QFormLayout *formLayout, Utils::PathChooser *&pathchooser,
+                                                const QString &name, const QString& path)
 {
-    QFileInfo fi(cmakeValidator->executable);
-    if (fi.exists() && fi.isExecutable()) {
-        // Run it to find out more
-        cmakeValidator->state = CMakeValidator::RUNNING;
-        startProcess(cmakeValidator);
-    } else {
-        cmakeValidator->state = CMakeValidator::INVALID;
-    }
-    saveSettings();
+
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    pathchooser = new Utils::PathChooser;
+    pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    formLayout->addRow(tr("Executable:") + name, pathchooser);
+    formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+    pathchooser->setPath(path);
 }
 
-void CMakeSettingsPage::saveSettings() const
+void CMakeSettingsPage::updateInfo(BuildCommand cmd, CMakeValidator *validator)
+{
+    QFileInfo fi(validator->executable);
+    if (fi.exists() && fi.isExecutable()) {
+        // Run it to find out more
+        validator->state = CMakeValidator::RUNNING;
+        startProcess(validator);
+    } else {
+        validator->state = CMakeValidator::INVALID;
+    }
+    saveSettings(cmd);
+}
+
+void CMakeSettingsPage::saveSettings(BuildCommand cmd) const
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    settings->setValue(QLatin1String("cmakeExecutable"), m_userCmake.executable);
+    if (cmd == CMake)
+        settings->setValue(QLatin1String("cmakeExecutable"), m_userCmake.executable);
+    else
+        settings->setValue(QLatin1String("ninjaExecutable"), m_userNinja.executable);
     settings->endGroup();
 }
 
 void CMakeSettingsPage::apply()
 {
-    if (!m_pathchooser) // page was never shown
+    if (!m_pathchooser || !m_pathchooserNinja) // page was never shown
         return;
-    if (m_userCmake.executable == m_pathchooser->path())
+    if (m_userCmake.executable == m_pathchooser->path() &&
+        m_userNinja.executable == m_pathchooserNinja->path())
         return;
     m_userCmake.executable = m_pathchooser->path();
-    updateInfo(&m_userCmake);
+    m_userNinja.executable = m_pathchooserNinja->path();
+    updateInfo(CMake, &m_userCmake);
+    updateInfo(Ninja, &m_userNinja);
 }
 
 void CMakeSettingsPage::finish()
@@ -417,12 +436,20 @@ QString CMakeSettingsPage::cmakeExecutable() const
         return m_pathCmake.executable;
 }
 
+QString CMakeSettingsPage::ninjaExecutable() const
+{
+    if (!m_userNinja.executable.isEmpty()) // TODO
+        return m_userNinja.executable;
+    else
+        return m_pathNinja.executable;
+}
+
 void CMakeSettingsPage::setCMakeExecutable(const QString &executable)
 {
     if (m_userCmake.executable == executable)
         return;
     m_userCmake.executable = executable;
-    updateInfo(&m_userCmake);
+    updateInfo(CMake, &m_userCmake);
 }
 
 bool CMakeSettingsPage::hasCodeBlocksMsvcGenerator() const
