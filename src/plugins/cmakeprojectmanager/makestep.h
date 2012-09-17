@@ -110,6 +110,7 @@ private:
     QString m_additionalArguments;
     QList<ProjectExplorer::Task> m_tasks;
     bool m_useNinja;
+    QString m_ninjaExecutable;
     CMakeBuildConfiguration *m_activeConfiguration;
 };
 

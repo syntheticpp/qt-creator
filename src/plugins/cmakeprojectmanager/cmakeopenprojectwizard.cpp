@@ -688,6 +688,10 @@ void CMakeRunPage::runCMake()
     m_argumentsLineEdit->setEnabled(false);
     m_generatorComboBox->setEnabled(false);
 
+    QString arguments = m_argumentsLineEdit->text();
+    if (generatorInfo.isNinja())
+        arguments += QLatin1String(" -DCMAKE_MAKE_PROGRAM=\"") + m_cmakeWizard->cmakeManager()->ninjaExecutable() + QLatin1String("\"");
+
     m_output->clear();
 
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
@@ -696,7 +700,7 @@ void CMakeRunPage::runCMake()
         connect(m_cmakeProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(cmakeReadyReadStandardOutput()));
         connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
-        cmakeManager->createXmlFile(m_cmakeProcess, m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(),
+        cmakeManager->createXmlFile(m_cmakeProcess, arguments, m_cmakeWizard->sourceDirectory(),
                                     m_buildDirectory, env, generatorInfo.generatorArgument());
     } else {
         m_runCMake->setEnabled(true);
