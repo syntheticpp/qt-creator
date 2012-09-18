@@ -155,6 +155,7 @@ private:
     bool m_complete;
     Mode m_mode;
     QString m_buildDirectory;
+    QCheckBox *m_dontSetQtVersion;
 };
 
 }

@@ -40,6 +40,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/abi.h>
 #include <texteditor/fontsettings.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -362,6 +363,10 @@ void CMakeRunPage::initWidgets()
     m_exitCodeLabel->setVisible(false);
     fl->addRow(m_exitCodeLabel);
 
+    m_dontSetQtVersion = new QCheckBox(tr("Don't set Qt version from selected kit (removes warning about unused QT_QMAKE_EXECUTABLE)"), this);
+    m_dontSetQtVersion->setChecked(false);
+    fl->addRow(m_dontSetQtVersion);
+
     setTitle(tr("Run CMake"));
     setMinimumSize(600, 400);
 }
@@ -520,6 +525,10 @@ void CMakeRunPage::runCMake()
     tc->addToEnvironment(env);
 
     m_output->clear();
+
+    QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(k);
+    if (!m_dontSetQtVersion->isChecked() && qt && !qt->qmakeCommand().toString().isEmpty())
+        arguments += " -DQT_QMAKE_EXECUTABLE=\"" + qt->qmakeCommand().toString() + "\"";
 
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
         m_cmakeProcess = new Utils::QtcProcess();
