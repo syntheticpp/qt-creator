@@ -40,6 +40,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/abi.h>
 #include <texteditor/fontsettings.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -520,6 +521,10 @@ void CMakeRunPage::runCMake()
     tc->addToEnvironment(env);
 
     m_output->clear();
+
+    QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(k);
+    if (qt && !qt->qmakeCommand().toString().isEmpty())
+        arguments += " -DQT_QMAKE_EXECUTABLE=\"" + qt->qmakeCommand().toString() + "\"";
 
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
         m_cmakeProcess = new Utils::QtcProcess();
