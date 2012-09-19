@@ -168,6 +168,8 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
                                     mode,
                                     cmakebc);
         copw.exec();
+        if (copw.useOutOfSourceProject())
+            setUseOutOfSourceProject(copw.buildDirectory());
     }
     // reparse
     parseCMakeLists();
@@ -191,6 +193,37 @@ void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QStri
 QString CMakeProject::defaultBuildDirectory() const
 {
     return projectDirectory() + QLatin1String("/qtcreator-build");
+}
+
+QString CMakeProject::outOfSourceProjectFileName()
+{
+    return QLatin1String("CMake.qtcreator");
+}
+
+QString CMakeProject::cmakeFileFromOutOfSourceProject(const QString& filePath)
+{
+    if (!filePath.endsWith(outOfSourceProjectFileName()))
+        return QString();
+    QSettings ini(filePath, QSettings::IniFormat);
+    return ini.value(QLatin1String("CMakeLists.txt")).toString();
+}
+
+void CMakeProject::setUseOutOfSourceProject(const QString &buildDir)
+{
+    if (m_outOfSourceProject != buildDir) {
+        m_outOfSourceProject = buildDir;
+        if (buildDir.isEmpty()) {
+            setProperty(QByteArray("qtcUserFileName"), QVariant());
+            setNamedSettings(QLatin1String("RecentName"), QVariant());
+        } else {
+            QString projectPath = buildDir + "/" + outOfSourceProjectFileName();
+            QSettings ini(projectPath, QSettings::IniFormat);
+            ini.setValue(QLatin1String("CMakeLists.txt"), m_file->fileName());
+            QString userFile = buildDir + "/CMakeLists.txt.user";
+            setProperty(QByteArray("qtcUserFileName"), userFile);
+            setNamedSettings(QLatin1String("RecentName"), QVariant(projectPath));
+        }
+    }
 }
 
 bool CMakeProject::parseCMakeLists()
@@ -558,6 +591,8 @@ bool CMakeProject::fromMap(const QVariantMap &map)
                                     activeBC);
         if (copw.exec() != QDialog::Accepted)
             return false;
+        if (copw.useOutOfSourceProject())
+            setUseOutOfSourceProject(copw.buildDirectory());
     }
 
     m_watcher = new QFileSystemWatcher(this);
@@ -910,6 +945,8 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
+        if (copw.useOutOfSourceProject())
+            project->setUseOutOfSourceProject(copw.buildDirectory());
     }
 }
 
@@ -922,9 +959,13 @@ void CMakeBuildSettingsWidget::runCMake()
                                 m_buildConfiguration->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 m_buildConfiguration);
-    if (copw.exec() == QDialog::Accepted)
+    if (copw.exec() == QDialog::Accepted) {
         project->parseCMakeLists();
+        if (copw.useOutOfSourceProject())
+            project->setUseOutOfSourceProject(copw.buildDirectory());
+    }
 }
+
 
 /////
 // CMakeCbpParser

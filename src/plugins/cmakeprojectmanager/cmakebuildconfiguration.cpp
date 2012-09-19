@@ -232,6 +232,8 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     }
 
     bc->setBuildDirectory(copw.buildDirectory());
+    if (copw.useOutOfSourceProject())
+        project->setUseOutOfSourceProject(copw.buildDirectory());
 
     // Default to all
     if (project->hasBuildTarget("all"))

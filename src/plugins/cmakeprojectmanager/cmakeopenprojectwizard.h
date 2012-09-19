@@ -40,6 +40,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QCheckBox>
 
 namespace Utils {
 class FancyLineEdit;
@@ -94,6 +95,11 @@ public:
     CMakeBuildConfiguration *buildConfiguration() const;
     bool existsUpToDateXmlFile() const;
 
+    bool useOutOfSourceProject() const;
+
+public slots:
+    void setUseOutOfSourceProject(bool);
+
 private:
     void init();
     bool hasInSourceBuild() const;
@@ -103,6 +109,7 @@ private:
     QString m_arguments;
     bool m_creatingCbpFiles;
     CMakeBuildConfiguration *m_buildConfiguration;
+    bool m_useOutOfSourceProject;
 };
 
 class InSourceBuildPage : public QWizardPage
@@ -121,9 +128,14 @@ public:
     explicit ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change = false);
 private slots:
     void buildDirectoryChanged();
+    void useOutOfSourceProjectChanged(bool);
 private:
+    bool hasOutOfSourceProjectFile(const QString &buildDir) const;
+    bool isComplete() const;
     CMakeOpenProjectWizard *m_cmakeWizard;
     Utils::PathChooser *m_pc;
+    QCheckBox *m_outOfSourceProjectCheckBox;
+    bool m_lastIsChecked;
 };
 
 class CMakeRunPage : public QWizardPage
