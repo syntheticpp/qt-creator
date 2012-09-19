@@ -124,14 +124,23 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
                                 bc->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 bc);
-    if (copw.exec() == QDialog::Accepted)
+    if (copw.exec() == QDialog::Accepted) {
         cmakeProject->parseCMakeLists();
+        if (copw.useOutOfSourceProject())
+            cmakeProject->setUseOutOfSourceProject(copw.buildDirectory());
+    }
 }
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
 {
     Q_UNUSED(errorString)
     // TODO check whether this project is already opened
+    QString cmakeFile = CMakeProject::cmakeFileFromOutOfSourceProject(fileName);
+    if (!cmakeFile.isEmpty()) {
+        CMakeProject *project = new CMakeProject(this, cmakeFile);
+        project->setUseOutOfSourceProject(QFileInfo(fileName).absoluteDir().absolutePath());
+        return project;
+    }
     return new CMakeProject(this, fileName);
 }
 
