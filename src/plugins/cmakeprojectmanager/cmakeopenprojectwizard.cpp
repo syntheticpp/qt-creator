@@ -30,6 +30,7 @@
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
 #include "cmakebuildconfiguration.h"
+#include "cmakeproject.h"
 
 #include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
@@ -207,7 +208,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
       m_creatingCbpFiles(false),
       m_environment(env),
       m_useNinja(false),
-      m_kit(0)
+      m_kit(0),
+      m_useOutOfSourceProject(false)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -240,7 +242,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMake
       m_creatingCbpFiles(true),
       m_environment(info.environment),
       m_useNinja(info.useNinja),
-      m_kit(info.kit)
+      m_kit(info.kit),
+      m_useOutOfSourceProject(false)
 {
     CMakeRunPage::Mode rmode;
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
@@ -292,6 +295,16 @@ bool CMakeOpenProjectWizard::hasInSourceBuild() const
     if (fi.exists())
         return true;
     return false;
+}
+
+bool CMakeOpenProjectWizard::useOutOfSourceProject() const
+{
+    return m_useOutOfSourceProject;
+}
+
+void CMakeOpenProjectWizard::setUseOutOfSourceProject(bool value)
+{
+    m_useOutOfSourceProject = value;
 }
 
 bool CMakeOpenProjectWizard::existsUpToDateXmlFile() const
@@ -394,12 +407,47 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
     m_pc->setExpectedKind(Utils::PathChooser::Directory);
     connect(m_pc, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
     fl->addRow(tr("Build directory:"), m_pc);
+
+    m_outOfSourceProjectCheckBox = new QCheckBox(tr("Save project file in build directory"), this);
+    fl->addRow(m_outOfSourceProjectCheckBox);
+    // Enable by default, because if there already is a CMakeLists.txt.user the dialog would not pop up.
+    m_outOfSourceProjectCheckBox->setChecked(true);
+    useOutOfSourceProjectChanged(true);
+    m_outOfSourceProjectCheckBox->setEnabled(!hasOutOfSourceProjectFile(m_pc->path()));
+    connect(m_outOfSourceProjectCheckBox, SIGNAL(toggled(bool)), this, SLOT(useOutOfSourceProjectChanged(bool)));
+
     setTitle(tr("Build Location"));
+}
+
+bool ShadowBuildPage::hasOutOfSourceProjectFile(const QString &buildDir) const
+{
+    return !QDir(buildDir).entryInfoList(QStringList() << CMakeProject::outOfSourcePostfix()).isEmpty();
 }
 
 void ShadowBuildPage::buildDirectoryChanged()
 {
     m_cmakeWizard->setBuildDirectory(m_pc->path());
+    if (hasOutOfSourceProjectFile(m_pc->path())) {
+        bool rem = m_outOfSourceProjectCheckBox->isChecked();
+        m_outOfSourceProjectCheckBox->setEnabled(false);
+        m_outOfSourceProjectCheckBox->setChecked(true);
+        m_lastIsChecked = rem;
+    } else {
+        m_outOfSourceProjectCheckBox->setEnabled(true);
+        m_outOfSourceProjectCheckBox->setChecked(m_lastIsChecked);
+    }
+    completeChanged();
+}
+
+void ShadowBuildPage::useOutOfSourceProjectChanged(bool value)
+{
+    m_lastIsChecked = value;
+    m_cmakeWizard->setUseOutOfSourceProject(value);
+}
+
+bool ShadowBuildPage::isComplete() const
+{
+    return !hasOutOfSourceProjectFile(m_pc->path());
 }
 
 CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const QString &buildDirectory)
