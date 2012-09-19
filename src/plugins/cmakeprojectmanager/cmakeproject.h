@@ -105,6 +105,12 @@ public:
 
     bool parseCMakeLists();
 
+    static QString outOfSourcePostfix();
+    static QString cmakeFileFromOutOfSourceProject(const QString &filePath);
+
+    QString outOfSourceProjectFileName(const QString &buildDir);
+    void setUseOutOfSourceProject(const QString &buildDir);
+
 signals:
     /// emitted after parsing
     void buildTargetsChanged();
@@ -154,6 +160,8 @@ private:
     QMap<QString, CMakeUiCodeModelSupport *> m_uiCodeModelSupport;
     Core::IEditor *m_lastEditor;
     bool m_dirtyUic;
+
+    QString m_outOfSourceProject;
 };
 
 class CMakeCbpParser : public QXmlStreamReader
