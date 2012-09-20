@@ -373,6 +373,8 @@ void CMakeRunPage::initWidgets()
         // Show a field for the user to enter
         m_cmakeExecutable = new Utils::PathChooser(this);
         m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        connect(m_cmakeExecutable, SIGNAL(changed(QString)), m_cmakeWizard->cmakeManager(), SLOT(setCMakeExecutable(const QString&)));
+        connect(m_cmakeWizard->cmakeManager(), SIGNAL(cmakeExecutableChanged()), this, SLOT(updateGenerators()));
         fl->addRow("cmake Executable:", m_cmakeExecutable);
     }
 
@@ -459,7 +461,11 @@ void CMakeRunPage::initializePage()
         m_descriptionLabel->setText(tr("Refreshing cbp file in %1.").arg(m_buildDirectory));
     }
 
+    updateGenerators();
+}
 
+void CMakeRunPage::updateGenerators()
+{
     // Try figuring out generator and toolchain from CMakeCache.txt
     QString cachedGenerator;
     QString cmakeCxxCompiler;
@@ -489,6 +495,7 @@ void CMakeRunPage::initializePage()
     // restrict toolchains based on CMAKE_CXX_COMPILER ?
     Q_UNUSED(cmakeCxxCompiler);
     m_generatorComboBox->clear();
+    m_generatorComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
 
     QList<ProjectExplorer::Kit *> kitList =
