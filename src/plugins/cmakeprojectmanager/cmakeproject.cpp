@@ -212,16 +212,18 @@ void CMakeProject::setUseOutOfSourceProject(const QString &buildDir)
 {
     if (m_outOfSourceProject != buildDir) {
         m_outOfSourceProject = buildDir;
+        QVariant var; // TODO Why doesn't Project::setNamedSettings get a 'const QVariant &' ?
         if (buildDir.isEmpty()) {
-            setProperty(QByteArray("qtcUserFileName"), QVariant());
-            setNamedSettings(QLatin1String("RecentName"), QVariant());
+            setProperty(QByteArray("qtcUserFileName"), var);
+            setNamedSettings(QLatin1String("RecentName"), var);
         } else {
             QString projectPath = buildDir + "/" + outOfSourceProjectFileName();
             QSettings ini(projectPath, QSettings::IniFormat);
             ini.setValue(QLatin1String("CMakeLists.txt"), m_file->fileName());
             QString userFile = buildDir + "/CMakeLists.txt.user";
             setProperty(QByteArray("qtcUserFileName"), userFile);
-            setNamedSettings(QLatin1String("RecentName"), QVariant(projectPath));
+            var = QVariant(projectPath);
+            setNamedSettings(QLatin1String("RecentName"), var);
         }
     }
 }
