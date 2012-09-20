@@ -393,6 +393,10 @@ void CMakeRunPage::initWidgets()
     hbox2->addWidget(m_runCMake);
     fl->addRow(hbox2);
 
+    m_dontSetQtVersion = new QCheckBox(tr("Don't set Qt version from selected kit (removes warning about unused QT_QMAKE_EXECUTABLE)"), this);
+    m_dontSetQtVersion->setChecked(false);
+    fl->addRow(m_dontSetQtVersion);
+
     // Bottom output window
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
@@ -571,7 +575,7 @@ void CMakeRunPage::runCMake()
     m_output->clear();
 
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(k);
-    if (qt && !qt->qmakeCommand().toString().isEmpty())
+    if (!m_dontSetQtVersion->isChecked() && qt && !qt->qmakeCommand().toString().isEmpty())
         arguments += " -DQT_QMAKE_EXECUTABLE=\"" + qt->qmakeCommand().toString() + "\"";
 
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
