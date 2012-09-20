@@ -97,7 +97,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(false),
-      m_buildConfiguration(bc)
+      m_buildConfiguration(bc),
+      m_useOutOfSourceProject(false)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -129,7 +130,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_buildConfiguration(bc)
+      m_buildConfiguration(bc),
+      m_useOutOfSourceProject(false)
 {
 
     CMakeRunPage::Mode rmode;
@@ -149,7 +151,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_buildConfiguration(bc)
+      m_buildConfiguration(bc),
+      m_useOutOfSourceProject(false)
 {
     m_buildDirectory = oldBuildDirectory;
     addPage(new ShadowBuildPage(this, true));
@@ -159,7 +162,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 
 void CMakeOpenProjectWizard::init()
 {
-    m_useOutOfSourceProject = false;
     setOption(QWizard::NoBackButtonOnStartPage);
     setWindowTitle(tr("CMake Wizard"));
 }
