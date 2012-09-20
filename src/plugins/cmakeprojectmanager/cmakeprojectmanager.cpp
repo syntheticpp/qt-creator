@@ -281,7 +281,7 @@ void CMakeSettingsPage::initValidator(BuildCommand cmd, CMakeValidator *user, CM
     user->executable = settings->value(key).toString();
     settings->endGroup();
     updateInfo(cmd, user);
-    path->executable = findExecutable(cmd);
+    path->executable = findExecutable(cmd, QStringList() << QCoreApplication::applicationDirPath());
     updateInfo(cmd, path);
 }
 
@@ -367,10 +367,10 @@ CMakeSettingsPage::~CMakeSettingsPage()
     delete m_pathCmake.process;
 }
 
-QString CMakeSettingsPage::findExecutable(BuildCommand cmd) const
+QString CMakeSettingsPage::findExecutable(BuildCommand cmd, const QStringList &dirs) const
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    return env.searchInPath(QLatin1String(cmd == CMake ? "cmake" : "ninja"));
+    return env.searchInPath(QLatin1String(cmd == CMake ? "cmake" : "ninja"), dirs);
 }
 
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)

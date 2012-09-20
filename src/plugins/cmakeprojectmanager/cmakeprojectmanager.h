@@ -140,7 +140,7 @@ private:
     enum BuildCommand { CMake, Ninja };
     void cmakeFinished(CMakeValidator *cmakeValidator) const;
     void saveSettings(BuildCommand cmd) const;
-    QString findExecutable(BuildCommand cmd) const;
+    QString findExecutable(BuildCommand cmd, const QStringList &dirs) const;
     void startProcess(CMakeValidator *cmakeValidator);
     void updateInfo(BuildCommand cmd, CMakeValidator *validator);
     void createExecutableChooser(QFormLayout *formLayout, Utils::PathChooser *&pathchooser,
