@@ -397,10 +397,6 @@ void CMakeRunPage::initWidgets()
     hbox2->addWidget(m_runCMake);
     fl->addRow(hbox2);
 
-    m_dontSetQtVersion = new QCheckBox(tr("Don't set Qt version from selected kit (removes warning about unused QT_QMAKE_EXECUTABLE)"), this);
-    m_dontSetQtVersion->setChecked(false);
-    fl->addRow(m_dontSetQtVersion);
-
     // Bottom output window
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
@@ -418,6 +414,10 @@ void CMakeRunPage::initWidgets()
     m_exitCodeLabel = new QLabel(this);
     m_exitCodeLabel->setVisible(false);
     fl->addRow(m_exitCodeLabel);
+
+    m_dontSetQtVersion = new QCheckBox(tr("Don't set Qt version from selected kit (removes warning about unused QT_QMAKE_EXECUTABLE)"), this);
+    m_dontSetQtVersion->setChecked(false);
+    fl->addRow(m_dontSetQtVersion);
 
     setTitle(tr("Run CMake"));
     setMinimumSize(600, 400);
