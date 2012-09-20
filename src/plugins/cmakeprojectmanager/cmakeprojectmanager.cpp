@@ -65,6 +65,8 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
             this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
+    connect(m_settingsPage, SIGNAL(cmakeExecutableChanged()), this, SIGNAL(cmakeExecutableChanged()));
+
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     Core::ActionContainer *mproject =
@@ -298,11 +300,13 @@ void CMakeSettingsPage::startProcess(CMakeValidator *cmakeValidator)
 void CMakeSettingsPage::userCmakeFinished()
 {
     cmakeFinished(&m_userCmake);
+    cmakeExecutableChanged();
 }
 
 void CMakeSettingsPage::pathCmakeFinished()
 {
     cmakeFinished(&m_pathCmake);
+    cmakeExecutableChanged();
 }
 
 void CMakeSettingsPage::cmakeFinished(CMakeValidator *cmakeValidator) const

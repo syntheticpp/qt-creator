@@ -178,6 +178,7 @@ public:
     virtual void cleanupPage();
     virtual bool isComplete() const;
 private slots:
+    void updateGenerators();
     void runCMake();
     void cmakeFinished();
     void cmakeReadyReadStandardOutput();

@@ -67,9 +67,7 @@ public:
     virtual QString mimeType() const;
 
     QString cmakeExecutable() const;
-    bool isCMakeExecutableValid() const;
-
-    void setCMakeExecutable(const QString &executable);
+    bool isCMakeExecutableValid() const; 
 
     QString ninjaExecutable() const;
 
@@ -84,6 +82,13 @@ public:
     static QString findCbpFile(const QDir &);
 
     static QString findDumperLibrary(const Utils::Environment &env);
+
+public slots:
+    void setCMakeExecutable(const QString &executable);
+
+signals:
+    void cmakeExecutableChanged();
+
 private slots:
     void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
     void runCMake();
@@ -130,6 +135,9 @@ public:
     bool hasCodeBlocksNinjaGenerator() const;
 
     QString ninjaExecutable() const;
+
+signals:
+    void cmakeExecutableChanged();
 
 private slots:
     void userCmakeFinished();
