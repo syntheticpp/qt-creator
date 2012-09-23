@@ -39,6 +39,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
 #include <texteditor/fontsettings.h>
 #include <qtsupport/qtkitinformation.h>
@@ -51,6 +52,7 @@
 #include <QDateTime>
 #include <QSettings>
 #include <QStringList>
+#include <QDialogButtonBox>
 
 
 using namespace CMakeProjectManager;
@@ -501,9 +503,12 @@ void CMakeRunPage::updateGenerators()
     QList<ProjectExplorer::Kit *> kitList =
             ProjectExplorer::KitManager::instance()->kits();
 
+    ProjectExplorer::Target *target = m_cmakeWizard->buildConfiguration() ? m_cmakeWizard->buildConfiguration()->target() : 0;
+    ProjectExplorer::Kit *actualKit = target ? target->kit() : 0;
+
     foreach (ProjectExplorer::Kit *k, kitList) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-        if (!tc)
+        if (!tc || actualKit != k)
             continue;
         ProjectExplorer::Abi targetAbi = tc->targetAbi();
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
@@ -665,4 +670,54 @@ void CMakeRunPage::cleanupPage()
 bool CMakeRunPage::isComplete() const
 {
     return m_complete;
+}
+
+
+CMakeKitDialog::CMakeKitDialog(QWidget *parent) :
+    QDialog(parent),
+    m_kitComboBox(0)
+{
+    QFormLayout *fl = new QFormLayout;
+    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    setLayout(fl);
+
+    m_kitComboBox = new QComboBox(this);
+    updateKits();
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->addWidget(m_kitComboBox);
+    hbox->addStretch(10);
+    hbox->addWidget(buttonBox);
+    fl->addRow(tr("Kit:"), hbox);
+
+    setWindowTitle(tr("Please select the kit which should be used.\n"));
+    QLabel *hint = new QLabel(this);
+    hint->setWordWrap(true);
+    hint->setText(tr("New kits could be added under Tools->Options->Build&Run"));
+    fl->addRow(hint);
+
+    setMinimumSize(600, 100);
+}
+
+void CMakeKitDialog::updateKits()
+{
+    m_kitComboBox->clear();
+    m_kitComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+    QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::instance()->kits();
+
+    foreach (ProjectExplorer::Kit *k, kitList) {
+        if (ProjectExplorer::ToolChainKitInformation::toolChain(k))
+            m_kitComboBox->addItem(k->displayName(), qVariantFromValue(GeneratorInfo(k)));
+    }
+}
+
+ProjectExplorer::Kit *CMakeKitDialog::selectedKit() const
+{
+    int index = m_kitComboBox->currentIndex();
+    return m_kitComboBox->itemData(index).value<GeneratorInfo>().kit();
 }

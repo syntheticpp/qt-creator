@@ -49,6 +49,7 @@ class PathChooser;
 
 namespace ProjectExplorer {
 class ToolChain;
+class Kit;
 }
 
 namespace CMakeProjectManager {
@@ -170,6 +171,22 @@ private:
     QString m_buildDirectory;
     QCheckBox *m_dontSetQtVersion;
 };
+
+
+class CMakeKitDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit CMakeKitDialog(QWidget *parent = 0);
+
+    ProjectExplorer::Kit *selectedKit() const;
+
+private:
+    void updateKits();
+    QComboBox *m_kitComboBox;
+};
+
 
 }
 }

@@ -581,9 +581,15 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    Kit *defaultKit = KitManager::instance()->defaultKit();
-    if (!activeTarget() && defaultKit)
-        addTarget(createTarget(defaultKit));
+    if (!activeTarget()) {
+        CMakeKitDialog kitDialog;
+        if (kitDialog.exec() != QDialog::Accepted)
+            return false;
+        Kit *kit = kitDialog.selectedKit();
+        if (!kit)
+            kit = KitManager::instance()->defaultKit();
+        addTarget(createTarget(kit));
+    }
 
     // We have a user file, but we could still be missing the cbp file
     // or simply run createXml with the saved settings
