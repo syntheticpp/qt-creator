@@ -400,6 +400,9 @@ void CMakeSettingsPage::createExecutableChooser(QFormLayout *formLayout, Utils::
 
 void CMakeSettingsPage::updateInfo(BuildCommand cmd, CMakeValidator *validator)
 {
+    saveSettings(cmd);
+    if (cmd == Ninja)
+        return;
     QFileInfo fi(validator->executable);
     if (fi.exists() && fi.isExecutable()) {
         // Run it to find out more
@@ -408,7 +411,6 @@ void CMakeSettingsPage::updateInfo(BuildCommand cmd, CMakeValidator *validator)
     } else {
         validator->state = CMakeValidator::INVALID;
     }
-    saveSettings(cmd);
 }
 
 void CMakeSettingsPage::saveSettings(BuildCommand cmd) const
