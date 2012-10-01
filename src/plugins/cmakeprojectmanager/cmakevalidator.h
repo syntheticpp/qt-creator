@@ -52,9 +52,9 @@ public:
     void cancel();
     bool isValid() const;
 
-    void setCMakeExecutable(const QString &executable);
+    void setExecutable(const QString &executable);
     void setExecutablePlain(const QString &executable);
-    QString cmakeExecutable() const;
+    QString executable() const;
     bool hasCodeBlocksMsvcGenerator() const;
     bool hasCodeBlocksNinjaGenerator() const;
     TextEditor::Keywords keywords();
@@ -62,7 +62,7 @@ private slots:
     void finished(int exitCode);
 
 signals:
-    void cmakeExecutableChanged();
+    void executableChanged();
 
 private:
     void finishStep();
