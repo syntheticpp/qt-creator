@@ -273,6 +273,9 @@ CMakeSettingsPage::CMakeSettingsPage()
 
     initValidator(CMake, &m_cmakeValidatorForUser, &m_cmakeValidatorForSystem);
     initValidator(Ninja, &m_ninjaValidatorForUser, &m_ninjaValidatorForSystem);
+
+    connect(&m_cmakeValidatorForUser, SIGNAL(executableChanged()), this, SIGNAL(cmakeExecutableChanged()));
+    connect(&m_cmakeValidatorForSystem, SIGNAL(executableChanged()), this, SIGNAL(cmakeExecutableChanged()));
 }
 
 void CMakeSettingsPage::initValidator(BuildCommand cmd, CMakeValidator *user, CMakeValidator *path)
@@ -309,8 +312,8 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
     QWidget *outerWidget = new QWidget(parent);
     QFormLayout *formLayout = new QFormLayout(outerWidget);
-    createExecutableChooser(formLayout, m_pathchooser, QLatin1String("  cmake "), m_cmakeValidatorForUser.cmakeExecutable());
-    createExecutableChooser(formLayout, m_pathchooserNinja, QLatin1String("  ninja "), m_ninjaValidatorForUser.cmakeExecutable());
+    createExecutableChooser(formLayout, m_pathchooser, QLatin1String("  cmake "), m_cmakeValidatorForUser.executable());
+    createExecutableChooser(formLayout, m_pathchooserNinja, QLatin1String("  ninja "), m_ninjaValidatorForUser.executable());
     return outerWidget;
 }
 
@@ -331,7 +334,7 @@ void CMakeSettingsPage::updateInfo(BuildCommand cmd, CMakeValidator *validator, 
     if (cmd == Ninja) {
         validator->setExecutablePlain(executable);
     } else {
-        validator->setCMakeExecutable(executable);
+        validator->setExecutable(executable);
     }
 }
 
@@ -340,9 +343,9 @@ void CMakeSettingsPage::saveSettings(BuildCommand cmd) const
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
     if (cmd == CMake)
-        settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeValidatorForUser.cmakeExecutable());
+        settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeValidatorForUser.executable());
     else
-        settings->setValue(QLatin1String("ninjaExecutable"), m_ninjaValidatorForUser.cmakeExecutable());
+        settings->setValue(QLatin1String("ninjaExecutable"), m_ninjaValidatorForUser.executable());
     settings->endGroup();
 }
 
@@ -350,8 +353,8 @@ void CMakeSettingsPage::apply()
 {
     if (!m_pathchooser || !m_pathchooserNinja) // page was never shown
         return;
-    if (m_cmakeValidatorForUser.cmakeExecutable() == m_pathchooser->path() &&
-        m_ninjaValidatorForUser.cmakeExecutable() == m_pathchooserNinja->path())
+    if (m_cmakeValidatorForUser.executable() == m_pathchooser->path() &&
+        m_ninjaValidatorForUser.executable() == m_pathchooserNinja->path())
         return;
     updateInfo(CMake, &m_cmakeValidatorForUser, m_pathchooser->path());
     updateInfo(Ninja, &m_ninjaValidatorForUser, m_pathchooserNinja->path());
@@ -368,23 +371,23 @@ QString CMakeSettingsPage::cmakeExecutable() const
         return QString();
 
     if (m_cmakeValidatorForUser.isValid())
-        return m_cmakeValidatorForUser.cmakeExecutable();
+        return m_cmakeValidatorForUser.executable();
     if (m_cmakeValidatorForSystem.isValid())
-        return m_cmakeValidatorForSystem.cmakeExecutable();
+        return m_cmakeValidatorForSystem.executable();
     return QString();
 }
 
 QString CMakeSettingsPage::ninjaExecutable() const
 {
-    if (!m_ninjaValidatorForUser.cmakeExecutable().isEmpty()) // TODO
-        return m_ninjaValidatorForUser.cmakeExecutable();
+    if (!m_ninjaValidatorForUser.executable().isEmpty()) // TODO
+        return m_ninjaValidatorForUser.executable();
     else
-        return m_ninjaValidatorForSystem.cmakeExecutable();
+        return m_ninjaValidatorForSystem.executable();
 }
 
 void CMakeSettingsPage::setCMakeExecutable(const QString &executable)
 {
-    if (m_cmakeValidatorForUser.cmakeExecutable() == executable)
+    if (m_cmakeValidatorForUser.executable() == executable)
         return;
     updateInfo(CMake, &m_cmakeValidatorForUser, executable);
 }

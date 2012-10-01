@@ -65,7 +65,7 @@ void CMakeValidator::setExecutablePlain(const QString &executable)
     m_executable = executable;
 }
 
-void CMakeValidator::setCMakeExecutable(const QString &executable)
+void CMakeValidator::setExecutable(const QString &executable)
 {
     cancel();
     m_process = new QProcess();
@@ -88,7 +88,7 @@ void CMakeValidator::finished(int exitCode)
 {
     if (exitCode) {
         m_state = CMakeValidator::Invalid;
-        emit cmakeExecutableChanged();
+        emit executableChanged();
         return;
     }
     if (m_state == CMakeValidator::RunningBasic) {
@@ -110,7 +110,7 @@ void CMakeValidator::finished(int exitCode)
             if (!startProcess(QStringList(QLatin1String("--help-command-list"))))
                 finished(0); // shoud never happen, just continue
         }
-        emit cmakeExecutableChanged();
+        emit executableChanged();
     } else if (m_state == CMakeValidator::RunningFunctionList) {
         parseFunctionOutput(m_process->readAll());
         m_state = CMakeValidator::RunningFunctionDetails;
@@ -137,7 +137,7 @@ bool CMakeValidator::startProcess(const QStringList &args)
     return m_process->waitForStarted(2000);
 }
 
-QString CMakeValidator::cmakeExecutable() const
+QString CMakeValidator::executable() const
 {
     return m_executable;
 }
