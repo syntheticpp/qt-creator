@@ -116,7 +116,7 @@ QString GeneratorInfo::generator() const
     if (!m_kit)
         return QString();
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
-    ProjectExplorer::Abi targetAbi = tc->targetAbi();
+    ProjectExplorer::Abi targetAbi = tc ? tc->targetAbi() : ProjectExplorer::Abi();
     if (m_isNinja) {
         return QLatin1String("Ninja");
     } else if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
@@ -151,7 +151,7 @@ QString GeneratorInfo::displayName() const
     if (m_isNinja)
         return QApplication::tr("Ninja (%1)").arg(m_kit->displayName());
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
-    ProjectExplorer::Abi targetAbi = tc->targetAbi();
+    ProjectExplorer::Abi targetAbi = tc ? tc->targetAbi() : ProjectExplorer::Abi();
     if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
         if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
                 || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
@@ -176,7 +176,7 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
 {
     QList<GeneratorInfo> results;
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-    ProjectExplorer::Abi targetAbi = tc->targetAbi();
+    ProjectExplorer::Abi targetAbi = tc ? tc->targetAbi() : ProjectExplorer::Abi();
     if (n != ForceNinja) {
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
