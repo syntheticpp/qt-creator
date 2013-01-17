@@ -120,8 +120,11 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
 
     CMakeOpenProjectWizard copw(this, CMakeOpenProjectWizard::WantToUpdate,
                                 CMakeOpenProjectWizard::BuildInfo(bc));
-    if (copw.exec() == QDialog::Accepted)
+    if (copw.exec() == QDialog::Accepted) {
         cmakeProject->parseCMakeLists();
+        if (copw.useOutOfSourceProject())
+            cmakeProject->setUseOutOfSourceProject(copw.buildDirectory());
+    }
 }
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
@@ -131,6 +134,14 @@ ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QSt
             *errorString = tr("Failed opening project '%1': Project is not a file")
                 .arg(fileName);
         return 0;
+    }
+
+    // TODO check whether this project is already opened
+    QString cmakeFile = CMakeProject::cmakeFileFromOutOfSourceProject(fileName);
+    if (!cmakeFile.isEmpty()) {
+        CMakeProject *project = new CMakeProject(this, cmakeFile);
+        project->setUseOutOfSourceProject(QFileInfo(fileName).absoluteDir().absolutePath());
+        return project;
     }
 
     return new CMakeProject(this, fileName);

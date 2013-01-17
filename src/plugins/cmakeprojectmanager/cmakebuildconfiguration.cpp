@@ -206,7 +206,11 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     cleanMakeStep->setClean(true);
 
     bc->setBuildDirectory(copw.buildDirectory());
+
     bc->setUseNinja(copw.useNinja());
+
+    if (copw.useOutOfSourceProject())
+        project->setUseOutOfSourceProject(copw.buildDirectory());
 
     // Default to all
     if (project->hasBuildTarget(QLatin1String("all")))
