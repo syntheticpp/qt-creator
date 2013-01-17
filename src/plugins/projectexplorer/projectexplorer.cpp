@@ -1352,7 +1352,10 @@ Project *ProjectExplorerPlugin::openProject(const QString &fileName, QString *er
 
     QList<Project *> list = openProjects(QStringList() << fileName, errorString);
     if (!list.isEmpty()) {
-        addToRecentProjects(fileName, list.first()->displayName());
+        QString recentName = list.first()->namedSettings(QLatin1String("RecentName")).toString();
+        if (recentName.isEmpty())
+            recentName = fileName;
+        addToRecentProjects(recentName, list.first()->displayName());
         d->m_session->setStartupProject(list.first());
         return list.first();
     }
