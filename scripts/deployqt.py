@@ -263,7 +263,7 @@ def main():
     QT_INSTALL_TRANSLATIONS = readQmakeVar(qmake_bin, 'QT_INSTALL_TRANSLATIONS')
 
     plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers']
-    imports = ['Qt', 'QtWebKit']
+    imports = ['Qt']
 
     if sys.platform.startswith('win'):
         global debug_build
