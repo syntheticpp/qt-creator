@@ -39,5 +39,9 @@ equals(TEST, 1) {
     SOURCES += \
         locatorfiltertest.cpp \
         locator_test.cpp
-    DEFINES += SRCDIR=\\\"$$PWD\\\"
+    !isEmpty(vcproj) {
+        DEFINES += SRCDIR=\"$$PWD\"
+    } else {
+        DEFINES += SRCDIR=\\\"$$PWD\\\"
+    }
 }
