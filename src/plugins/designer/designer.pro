@@ -62,7 +62,11 @@ SOURCES += formeditorplugin.cpp \
 
 equals(TEST, 1) {
     SOURCES += gotoslot_test.cpp
-    DEFINES += SRCDIR=\\\"$$PWD\\\"
+    !isEmpty(vcproj) {
+        DEFINES += SRCDIR=\"$$PWD\"
+    } else {
+        DEFINES += SRCDIR=\\\"$$PWD\\\"
+    }
 }
 
 RESOURCES += designer.qrc

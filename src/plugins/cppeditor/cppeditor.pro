@@ -63,7 +63,11 @@ equals(TEST, 1) {
         fileandtokenactions_test.cpp \
         followsymbol_switchmethoddecldef_test.cpp
 
-    DEFINES += SRCDIR=\\\"$$PWD\\\"
+    !isEmpty(vcproj) {
+        DEFINES += SRCDIR=\"$$PWD\"
+    } else {
+        DEFINES += SRCDIR=\\\"$$PWD\\\"
+    }
 }
 
 FORMS += \

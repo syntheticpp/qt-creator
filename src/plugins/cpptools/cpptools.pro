@@ -124,5 +124,9 @@ equals(TEST, 1) {
         cpppreprocessertesthelper.h \
         modelmanagertesthelper.h
 
-    DEFINES += SRCDIR=\\\"$$PWD\\\"
+    !isEmpty(vcproj) {
+        DEFINES += SRCDIR=\"$$PWD\"
+    } else {
+        DEFINES += SRCDIR=\\\"$$PWD\\\"
+    }
 }
