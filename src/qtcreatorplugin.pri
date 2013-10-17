@@ -28,7 +28,18 @@ dependencyList += "    </dependencyList>"
 dependencyList = $$join(dependencyList, $$escape_expand(\\n))
 
 # use gui precompiled header for plugins by default
-isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.h
+isEmpty(vcproj) {
+    isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.h
+} else {
+    PCH = $$PWD/shared/qtcreator_gui_pch_$${TARGET}.h
+    !exists($$PCH) { 
+        copyargs = $$PWD/shared/qtcreator_gui_pch.h $$PCH
+        copyargs = $$replace(copyargs, /, \\)
+        message($$QMAKE_COPY $$copyargs)
+        system($$QMAKE_COPY $$copyargs)
+    }
+    isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PCH
+}
 
 isEmpty(PROVIDER) {
     PROVIDER = QtProject

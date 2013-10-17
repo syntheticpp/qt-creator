@@ -4,7 +4,18 @@ TARGET = $$QTC_LIB_NAME
 include(../qtcreator.pri)
 
 # use precompiled header for libraries by default
-isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_pch.h
+isEmpty(vcproj) {
+    isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_pch.h
+} else {
+    PCH = $$PWD/shared/qtcreator_pch_$${TARGET}.h
+    !exists($$PCH) { 
+        copyargs = $$PWD/shared/qtcreator_pch.h $$PCH
+        copyargs = $$replace(copyargs, /, \\)
+        message($$QMAKE_COPY $$copyargs)
+        system($$QMAKE_COPY $$copyargs)
+    }
+    isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PCH
+}
 
 win32 {
     DLLDESTDIR = $$IDE_APP_PATH
